@@ -48,10 +48,15 @@ html
 {
     grid-area: userScore;
     display:flex;
-    flex-direction: row-reverse;
+    flex-direction: row;
+    justify-content: space-between;
     text-align: right;
     width:100vw;
     height:5vh;
+}
+.score>button
+{
+    width:20%;
 }
 .center
 {
@@ -152,4 +157,8 @@ button
     width:60%;
     height:60%;
     border:solid;
+}
+#curScore::before
+{
+    content:"Score:";
 }
