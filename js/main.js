@@ -1,16 +1,5 @@
+import {Lvl1,Lvl2} from './maps.js';
 /*----- constants -----*/
-//0=path, 1=wall, 2=player, 3=ball, 4=enemy
-//level 1 grid (21x21)
-const Lvl1 = [
-    [0,0,0,0,0,1,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0],[1,1,1,1,0,1,0,1,1,1,0,1,0,1,0,1,0,1,1,1,1],[0,0,0,0,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,0,0],
-    [0,1,1,1,0,1,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0],[0,0,0,1,0,0,0,1,0,1,1,1,0,1,0,1,1,1,1,1,0],[1,1,1,1,0,1,1,1,0,0,0,0,0,1,0,1,0,0,0,0,0],
-    [0,0,0,0,0,1,0,1,1,1,0,1,1,1,0,1,0,1,1,1,0],[0,1,1,1,1,1,0,1,0,0,0,1,0,0,0,1,0,1,0,0,0],[0,1,0,0,0,0,0,1,0,1,1,1,0,1,0,1,1,1,0,1,0],
-    [0,1,0,1,1,1,1,1,0,0,0,0,0,1,0,0,0,0,0,0,0],[0,1,0,0,0,0,0,0,0,0,2,0,0,1,1,1,1,1,0,1,0],[0,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,1,0,1,0],
-    [0,0,0,0,0,1,0,0,0,1,0,1,1,1,1,1,0,1,0,1,0],[1,1,1,1,0,1,1,1,1,1,0,1,0,0,0,1,0,1,1,1,0],[0,0,0,1,0,0,0,1,0,0,0,1,0,1,1,1,0,0,0,0,0],
-    [1,1,0,1,0,1,0,1,1,1,0,1,0,1,0,0,0,0,1,1,0],[0,1,0,1,0,1,0,0,0,1,0,1,0,0,0,1,0,1,1,0,0],[0,1,0,1,0,1,0,1,0,0,0,1,1,1,0,1,1,1,0,0,1],
-    [0,1,0,0,0,1,0,1,1,1,0,1,0,1,0,0,1,0,0,1,1],[0,1,1,1,0,1,0,1,0,0,0,1,0,1,1,0,1,0,1,1,0],[0,0,0,0,0,1,0,0,0,1,0,1,0,0,0,0,1,0,0,0,0]
-];
-
 /*----- cached element references -----*/
 
 //declaring the gameboard
@@ -47,6 +36,8 @@ let pY=10;
 //ghoul's x and y
 let gX=0;
 let gY=0;
+//decides the current level
+let ThisLvl;
 //checks whether to move on to the next level
 let nxtLvl=false;
 
@@ -67,37 +58,39 @@ window.addEventListener('keydown',a=>movePlayer(a));
 //sets up the gameboard and initializes the game
 function init()
 {
+    let gStart=Math.floor(Math.random() * Math.floor(2));
+    ThisLvl=(gStart==0)?Lvl1:Lvl2;
+    //use to debug new maps
+    //ThisLvl=Lvl2;
     curLevel.innerHTML=lvlScore/10;
     curScore.innerHTML=cScore;
     gBoard.innerHTML="";
     document.getElementById("btnBar").style.visibility="visible";
     //building lvl 1
-    Lvl1.forEach((a) => {
+    ThisLvl.forEach((a) => {
     do{
         wall = `<div class="Wall"id="c${iY}r${iX}"></div>`;
         path = `<div class="Path"id="c${iY}r${iX}"></div>`;
-        if(a[iX]==1)
+        switch(a[iX])
         {
-            gBoard.innerHTML+=wall;
-            iX++;
-        }
-        else if(iY==10 && a[iX]==2)
-        {
-            gBoard.innerHTML+=path;
-            document.getElementById(`c${iY}r${iX}`).innerHTML+=playr;
-            iX++;
-        }
-        else if(a[iX]==0)
-        {
-            gBoard.innerHTML+=path;
-            iX++;
+            //adds movable path
+            case 0:gBoard.innerHTML+=path;iX++;
+            break;
+            //adds unpassable walls
+            case 1:gBoard.innerHTML+=wall;iX++;
+            break;
+            //adds the player
+            case 2:gBoard.innerHTML+=path;document.getElementById(`c${iY}r${iX}`).innerHTML+=playr;iX++;
+            break;
+            //adds the ghouls
+            case 3:gBoard.innerHTML+=path;document.getElementById(`c${iY}r${iX}`).innerHTML+=ghoul;iX++;
+            break;
         }
     }while(iX<21)
     iX=0;
     iY++;
     });
     addPP();
-    addGhouls();
 }
 //used for debugging to avoid having to click start
 init();
@@ -162,7 +155,7 @@ function moveDown()
         {
             P1.innerHTML="";
             checkPP();
-            if(nxtLvl=false)
+            if(nxtLvl==false)
             {
                 //P1.innerHTML="";
                 P2.innerHTML=playr;
@@ -184,7 +177,7 @@ function moveLeft()
         {
             P1.innerHTML="";
             checkPP();
-            if(nxtLvl=false)
+            if(nxtLvl==false)
             {
                 P2.innerHTML=playr;
                 pX--;
@@ -205,7 +198,7 @@ function moveRight()
         {
             
             checkPP();
-            if(nxtLvl=false)
+            if(nxtLvl==false)
             {
                 P2.innerHTML=playr;
                 pX++;
@@ -247,7 +240,7 @@ function checkPP()
 //adds the pellets to the board
 function addPP()
 {
-    i=0;
+    let i=0;
     //current level's amount of pellets
     let A=10;
     do
@@ -256,15 +249,15 @@ function addPP()
         A=(lvlScore>10)?lvlScore+1:lvlScore;
         //pellet's Y co-ordinates
         //pellet's X co-ordinates
-        a=Math.floor(Math.random() * Math.floor(21));
-        b=Math.floor(Math.random() * Math.floor(21));
-        c=Lvl1[a][b];
+        let a=Math.floor(Math.random() * Math.floor(21));
+        let b=Math.floor(Math.random() * Math.floor(21));
+        let c=ThisLvl[a][b];
         //creates the pellets on spots where neither a wall or the player is present
-        if(c==0 && c!=2){
+        if(c==0 && c!=2 && c!=1){
             document.getElementById(`c${a}r${b}`).innerHTML=pP;
             i++;
         }
-    }while(i!=A);
+    }while(i<A);
     curLevel.innerHTML=lvlScore/10;
 }
 
@@ -272,12 +265,16 @@ function addPP()
 //AI
 //
 //adds the ghouls
-function addGhouls()
-{
-    document.getElementById("c0r0").innerHTML=ghoul;
-}
+function moveGhouls()
+{}
 
 /* 
+have two variables each for x and y
+let bforeY=previous direction(-1=going up)
+let beforeX=previous direction(-1=going left)
+let nowY=current position(+1=going down)
+let nowX=current x position(+1=going right)
+start going down and keep checking to the right every move to try and move closer to the player when possible
 check for dead ends
 check your position vs player
 check for walls blocking way towards player?
