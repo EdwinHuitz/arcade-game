@@ -11,7 +11,7 @@ const Lvl1 = [
     [0,0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,0],
     [0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,0],
     [0,0,0,0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0],
     [0,0,0,0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0],
     [0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,0],
     [0,0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,0],
@@ -24,35 +24,92 @@ const Lvl1 = [
     [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1]
 ];
 //variables
+//grid x=i and y=ii
+let i=0;
+let ii=0;
 //grid used for ball positioning
 let ballP = Lvl1;
 //declaring objects
 const gBoard = document.getElementById("board");
-const path = '<div class="Path"></div>';
-const wall = '<div class="Wall"></div>';
+//declares the paths and walls with custom id tag of (col)(row)
+let path;
+let wall;
+//declaring the player
+const playr = '<div class="Player" id="p"></div>';
+//player's x and y
+let pX=10;
+let pY=10;
 //building lvl 1
-let i=0;
+//sets up the gameboard
 Lvl1.forEach((a) => {
     do{
+        wall = `<div class="Wall"id="c${ii}r${i}"></div>`;
+        path = `<div class="Path"id="c${ii}r${i}"></div>`;
         if(a[i]==1)
         {
             gBoard.innerHTML+=wall;
-            console.log(a[i]);
+            //console.log(a[i]);
+            i++;
+        }
+        else if(ii==10 && a[i]==2)
+        {
+            gBoard.innerHTML+=path;
+            document.getElementById(`c${ii}r${i}`).innerHTML+=playr;
+            //console.log("a");
             i++;
         }
         else if(a[i]==0)
         {
             gBoard.innerHTML+=path;
-            console.log(a[i]);
+            //console.log(a[i]);
             i++;
         }
     }while(i<21)
     i=0;
+    ii++;
 });
 //event listeners
-
+document.getElementById("mUp").addEventListener('click',moveUp);
+document.getElementById("mDown").addEventListener('click',moveDown);
+document.getElementById("mLeft").addEventListener('click',moveLeft);
+document.getElementById("mRight").addEventListener('click',moveRight);
 //functions
-
+function moveUp()
+{
+    let P1 = document.getElementById(`c${pY}r${pX}`);
+    let P2 = document.getElementById(`c${pY-1}r${pX}`);
+    if(P2.className=="Path"){
+    P1.innerHTML="";
+    P2.innerHTML=playr;
+    pY--;}
+}
+function moveDown()
+{
+    let P1 = document.getElementById(`c${pY}r${pX}`);
+    let P2 = document.getElementById(`c${pY+1}r${pX}`);
+    if(P2.className=="Path"){
+    P1.innerHTML="";
+    P2.innerHTML=playr;
+    pY++;}
+}
+function moveLeft()
+{
+    let P1 = document.getElementById(`c${pY}r${pX}`);
+    let P2 = document.getElementById(`c${pY}r${pX-1}`);
+    if(P2.className=="Path"){
+    P1.innerHTML="";
+    P2.innerHTML=playr;
+    pX--;}
+}
+function moveRight()
+{
+    let P1 = document.getElementById(`c${pY}r${pX}`);
+    let P2 = document.getElementById(`c${pY}r${pX+1}`);
+    if(P2.className=="Path"){
+    P1.innerHTML="";
+    P2.innerHTML=playr;
+    pX++;}
+}
 //// make the const array to lay out the grid and then fill it with 1's and 0's to design the basic layout
 // make another set of arrays which copy the first. This will be used as a guide by the point balls to help randomize their starting positions
 // make all the other essential variables like high-score, lifes, and x,y grid-positions for the player and enemies

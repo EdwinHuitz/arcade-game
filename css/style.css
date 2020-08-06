@@ -73,6 +73,37 @@ html
     grid-area:btnB;
     height:12vh;
     width:100%;
+    grid-template-columns: auto auto auto auto;
+    grid-template-rows: auto auto auto auto;
+    grid-template-areas:
+    ". a a ."
+    ". c d ."
+    ". b b ."
+    ;
+}
+button
+{
+    display:flex;
+    justify-self: center;
+    justify-content: center;
+    text-align:center;
+    width:25vw;
+}
+.gUp
+{
+    grid-area:a;
+}
+.gDown
+{
+    grid-area:b;
+}
+.gLeft
+{
+    grid-area:c;
+}
+.gRight
+{
+    grid-area:d;
 }
 .Wall
 {
@@ -83,6 +114,14 @@ html
 .Path
 {
     background-color: silver;
+    width:100%;
+    height:100%;
+    border:solid;
+}
+.Player
+{
+    background-color:green;
+    border-radius: 50%;
     width:100%;
     height:100%;
     border:solid;
