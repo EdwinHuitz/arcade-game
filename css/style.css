@@ -1,0 +1,89 @@
+html
+{
+    box-sizing: border-box;
+    margin:0;
+    padding:0;
+    border:none;
+}
+*,*::before,*::after{box-sizing: inherit;}
+:root{font-size:62.5%;}
+#main
+{
+    position:absolute;
+    top:0px;
+    left:0px;
+    display:grid;
+    grid-template-columns: 1fr 5fr 1fr;
+    grid-template-rows: auto auto auto;
+    height:100vh;
+    width:100%;
+    text-align: center;
+    grid-template-areas:
+    "userScore userScore userScore"
+    "leftD centerD rightD"
+    "btnB btnB btnB"
+    ;
+}
+.score
+{
+    background-color: green;
+    grid-area: userScore;
+    display:flex;
+    flex-direction: row-reverse;
+    text-align: right;
+    width:100vw;
+    height:5vh;
+}
+.center
+{
+    background-color: purple;
+    display:grid;
+    grid-template-columns: repeat(21,1fr);
+    grid-template-rows: repeat(21,1fr);
+    grid-area: centerD;
+    height:80vh;
+    width:48vw;
+    margin-left:1vw;
+    margin-right:1vw;
+}
+.leftSide
+{
+    background-color:blue;
+    display:grid;
+    grid-area:leftD;
+    grid-template-columns: 1fr 3fr;
+    grid-template-rows: auto;
+    width:25vw;
+    height:80vh;
+}
+.rightSide
+{
+    background-color:red;
+    display:grid;
+    grid-area:rightD;
+    grid-template-columns: 1fr 3fr;
+    grid-template-rows: auto;
+    width:25vw;
+    height:80vh;
+}
+.buttonBar
+{
+    background-color: orange;
+    display:grid;
+    grid-area:btnB;
+    height:12vh;
+    width:100%;
+}
+.Wall
+{
+    background-color:black;
+    width:100%;
+    height:100%;
+}
+.Path
+{
+    background-color: silver;
+    width:100%;
+    height:100%;
+    border:solid;
+}
