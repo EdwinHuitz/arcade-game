@@ -10,8 +10,10 @@ const Lvl1 = [
     [1,1,0,1,0,1,0,1,1,1,0,1,0,1,0,0,0,0,1,1,0],[0,1,0,1,0,1,0,0,0,1,0,1,0,0,0,1,0,1,1,0,0],[0,1,0,1,0,1,0,1,0,0,0,1,1,1,0,1,1,1,0,0,1],
     [0,1,0,0,0,1,0,1,1,1,0,1,0,1,0,0,1,0,0,1,1],[0,1,1,1,0,1,0,1,0,0,0,1,0,1,1,0,1,0,1,1,0],[0,0,0,0,0,1,0,0,0,1,0,1,0,0,0,0,1,0,0,0,0]
 ];
+
 /*----- cached element references -----*/
-//decalring the gameboard
+
+//declaring the gameboard
 const gBoard = document.getElementById("board");
 //the current level's number of pellets
 let lvlScore=10;
@@ -21,27 +23,35 @@ let lvlPrg=lvlScore-1;
 const curScore=document.getElementById("curScore");
 const curLevel=document.getElementById("curLevel");
 const highScore='';
+//declaring the player
+const playr = '<div class="Player" id="p"></div>';
+//declaring the ghoul
+const ghoul = '<div class="Ghoul"></div>';
+//declaring point pellet
+const pP='<div class="pPoint"></div>';
+
 /*----- app's state (variables) -----*/
+
 //current score and high score names
 let cScore=0;
 let hScore=[];
 //grid x=iX and y=iX
 let iX=0;
 let iY=0;
-//grid used for ball positioning
-let ballP = Lvl1;
 //declares the paths and walls with custom id tag of (col)(row)
 let path;
 let wall;
-//declaring the player
-const playr = '<div class="Player" id="p"></div>';
-//declaring power point
-const pP='<div class="pPoint"></div>';
 //player's x and y
 let pX=10;
 let pY=10;
-let nxtLvl=0;
+//ghoul's x and y
+let gX=0;
+let gY=0;
+//checks whether to move on to the next level
+let nxtLvl=false;
+
 /*----- event listeners -----*/
+
 //button clicks
 document.getElementById("startgame").addEventListener('click',init);
 document.getElementById("reStart").addEventListener('click',reStart);
@@ -51,7 +61,9 @@ document.getElementById("mLeft").addEventListener('click',moveLeft);
 document.getElementById("mRight").addEventListener('click',moveRight);
 //keys pressed
 window.addEventListener('keydown',a=>movePlayer(a));
+
 /*----- functions -----*/
+
 //sets up the gameboard and initializes the game
 function init()
 {
@@ -85,7 +97,15 @@ function init()
     iY++;
     });
     addPP();
-}init();
+    addGhouls();
+}
+//used for debugging to avoid having to click start
+init();
+
+//
+//Player Movement
+//
+
 //moves the player when keys are used
 function movePlayer(a)
 {
@@ -101,7 +121,7 @@ function movePlayer(a)
         break;
     }
 }
-//Player movement
+//Directions the player moves
 function moveUp()
 {
     //gets the player's current position
@@ -116,7 +136,7 @@ function moveUp()
         {
             checkPP();
             //checks for level completion
-            if(nxtLvl==0)
+            if(nxtLvl==false)
             {
                 //moves the player
                 P2.innerHTML=playr;
@@ -124,7 +144,7 @@ function moveUp()
                 pY--;
             }
             //resets the check for level completion
-            nxtLvl=0;
+            nxtLvl=false;
         }
         else{
         //moves the player
@@ -142,13 +162,13 @@ function moveDown()
         {
             P1.innerHTML="";
             checkPP();
-            if(nxtLvl==0)
+            if(nxtLvl=false)
             {
                 //P1.innerHTML="";
                 P2.innerHTML=playr;
                 pY++;
             }
-            nxtLvl=0;
+            nxtLvl=false;
         }else{
         //P1.innerHTML="";
         P2.innerHTML=playr;
@@ -164,12 +184,12 @@ function moveLeft()
         {
             P1.innerHTML="";
             checkPP();
-            if(nxtLvl==0)
+            if(nxtLvl=false)
             {
                 P2.innerHTML=playr;
                 pX--;
             }
-            nxtLvl=0;
+            nxtLvl=false;
         }else{
         //P1.innerHTML="";
         P2.innerHTML=playr;
@@ -185,20 +205,28 @@ function moveRight()
         {
             
             checkPP();
-            if(nxtLvl==0)
+            if(nxtLvl=false)
             {
                 P2.innerHTML=playr;
                 pX++;
             }
-            nxtLvl=0;
+            nxtLvl=false;
         }
         else{
         P2.innerHTML=playr;
         pX++;}}
 }
+
+//
+//Score System
+//
+
+//checks if the player has completed the level
 function checkPP()
 {
+    //adds 10 points to the player's score
     cScore+=10;
+    //updates the player's score
     curScore.innerHTML=cScore;
     if(lvlPrg>0)
     {
@@ -206,7 +234,7 @@ function checkPP()
     }
     else
     {
-        nxtLvl=1;
+        nxtLvl=true;
         //resets the player to the center of the map
         pX=10;pY=10;
         document.getElementById(`c${pY}r${pX}`).innerHTML=playr;
@@ -216,6 +244,7 @@ function checkPP()
         addPP();
     }
 }
+//adds the pellets to the board
 function addPP()
 {
     i=0;
@@ -238,6 +267,24 @@ function addPP()
     }while(i!=A);
     curLevel.innerHTML=lvlScore/10;
 }
+
+//
+//AI
+//
+//adds the ghouls
+function addGhouls()
+{
+    document.getElementById("c0r0").innerHTML=ghoul;
+}
+
+/* 
+check for dead ends
+check your position vs player
+check for walls blocking way towards player?
+when calculating which direction to go, don't allow going back your previous way unless it's a deadend?
+
+*/
+
 //resets all variables and restarts the game
 function reStart()
 {

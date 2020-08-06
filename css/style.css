@@ -76,7 +76,8 @@ html
 }
 .leftSide
 {
-    background-color:blue;
+    border:solid;
+    border-color:black;
     display:grid;
     grid-area:leftD;
     grid-template-columns: 1fr 3fr;
@@ -202,6 +203,14 @@ button
     border:solid;
     margin-top:15%;
     margin-left:20%;
+}
+.Ghoul
+{
+    background-color:red;
+    border-radius: 50%;
+    width:100%;
+    height:100%;
+    border:solid;
 }
 #curScore::before
 {
