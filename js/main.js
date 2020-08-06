@@ -12,8 +12,13 @@ const Lvl1 = [
 ];
 //declaring objects
 const gBoard = document.getElementById("board");
-//declaring the current score and highscore
+//the current level's number of pellets
+let lvlScore=10;
+//the current level's progress
+let lvlPrg=lvlScore-1;
+//declaring the current score, level, and highscore
 const curScore=document.getElementById("curScore");
+const curLevel=document.getElementById("curLevel");
 const highScore='';
 //variables
 //current score and high score names
@@ -50,6 +55,7 @@ window.addEventListener('keydown',a=>movePlayer(a));
 //sets up the gameboard and initializes the game
 function init()
 {
+    curLevel.innerHTML=lvlScore/10;
     curScore.innerHTML=cScore;
     gBoard.innerHTML="";
     document.getElementById("btnBar").style.visibility="visible";
@@ -108,8 +114,7 @@ function moveUp()
         //checks for powerpoints
         if(P2.innerHTML==pP)
         {
-            cScore+=10;
-            curScore.innerHTML=cScore;
+            checkPP();
         }
         //moves the player
         P1.innerHTML="";
@@ -124,8 +129,7 @@ function moveDown()
     if(pY<20 && P2.className=="Path"){
         if(P2.innerHTML==pP)
         {
-            cScore+=10;
-            curScore.innerHTML=cScore;
+            checkPP();
         }
         P1.innerHTML="";
         P2.innerHTML=playr;
@@ -138,8 +142,7 @@ function moveLeft()
     if(pX>0 && P2.className=="Path"){
         if(P2.innerHTML==pP)
         {
-            cScore+=10;
-            curScore.innerHTML=cScore;
+            checkPP();
         }
         P1.innerHTML="";
         P2.innerHTML=playr;
@@ -152,19 +155,37 @@ function moveRight()
     if(pX<20 && P2.className=="Path"){
         if(P2.innerHTML==pP)
         {
-            cScore+=10;
-            curScore.innerHTML=cScore;
+            checkPP();
         }
         P1.innerHTML="";
         P2.innerHTML=playr;
         pX++;}
 }
-console.log(Lvl1[10][10]);
+function checkPP()
+{
+    cScore+=10;
+    curScore.innerHTML=cScore;
+    if(lvlPrg>0)
+    {
+        lvlPrg--;
+    }
+    else
+    {
+        lvlScore+=10;
+        lvlPrg=lvlScore-1;
+        addPP();
+    }
+}
 function addPP()
 {
     i=0;
+    //current level's amount of pellets
+    let A=10;
     do
     {
+        A=(lvlScore>10)?lvlScore+1:lvlScore;
+        //pellet's Y co-ordinates
+        //pellet's X co-ordinates
         a=Math.floor(Math.random() * Math.floor(21));
         b=Math.floor(Math.random() * Math.floor(21));
         c=Lvl1[a][b];
@@ -172,7 +193,8 @@ function addPP()
             document.getElementById(`c${a}r${b}`).innerHTML=pP;
             i++;
         }
-    }while(i<20);
+    }while(i!=A);
+    curLevel.innerHTML=lvlScore/10;
 }
 //resets all variables and restarts the game
 function reStart()
@@ -181,6 +203,7 @@ function reStart()
     cScore=0;
     pX=10;pY=10;
     iX=0;iY=0;
+    lvlScore=10;lvlPrg=lvlScore;
     init();
 }
 // x,y grid-positions for the enemies
