@@ -1,4 +1,4 @@
-//const
+/*----- constants -----*/
 //0=path, 1=wall, 2=player, 3=ball, 4=enemy
 //level 1 grid (21x21)
 const Lvl1 = [
@@ -10,7 +10,8 @@ const Lvl1 = [
     [1,1,0,1,0,1,0,1,1,1,0,1,0,1,0,0,0,0,1,1,0],[0,1,0,1,0,1,0,0,0,1,0,1,0,0,0,1,0,1,1,0,0],[0,1,0,1,0,1,0,1,0,0,0,1,1,1,0,1,1,1,0,0,1],
     [0,1,0,0,0,1,0,1,1,1,0,1,0,1,0,0,1,0,0,1,1],[0,1,1,1,0,1,0,1,0,0,0,1,0,1,1,0,1,0,1,1,0],[0,0,0,0,0,1,0,0,0,1,0,1,0,0,0,0,1,0,0,0,0]
 ];
-//declaring objects
+/*----- cached element references -----*/
+//decalring the gameboard
 const gBoard = document.getElementById("board");
 //the current level's number of pellets
 let lvlScore=10;
@@ -20,7 +21,7 @@ let lvlPrg=lvlScore-1;
 const curScore=document.getElementById("curScore");
 const curLevel=document.getElementById("curLevel");
 const highScore='';
-//variables
+/*----- app's state (variables) -----*/
 //current score and high score names
 let cScore=0;
 let hScore=[];
@@ -39,8 +40,8 @@ const pP='<div class="pPoint"></div>';
 //player's x and y
 let pX=10;
 let pY=10;
-
-//event listeners
+let nxtLvl=0;
+/*----- event listeners -----*/
 //button clicks
 document.getElementById("startgame").addEventListener('click',init);
 document.getElementById("reStart").addEventListener('click',reStart);
@@ -50,8 +51,7 @@ document.getElementById("mLeft").addEventListener('click',moveLeft);
 document.getElementById("mRight").addEventListener('click',moveRight);
 //keys pressed
 window.addEventListener('keydown',a=>movePlayer(a));
-
-//functions
+/*----- functions -----*/
 //sets up the gameboard and initializes the game
 function init()
 {
@@ -100,7 +100,6 @@ function movePlayer(a)
         case "d":moveRight();
         break;
     }
-
 }
 //Player movement
 function moveUp()
@@ -111,55 +110,91 @@ function moveUp()
     let P2 = document.getElementById(`c${pY-1}r${pX}`);
     //checks if the player can move to this spot
     if(pY>0 && P2.className=="Path"){
+        P1.innerHTML="";
         //checks for powerpoints
         if(P2.innerHTML==pP)
         {
             checkPP();
+            //checks for level completion
+            if(nxtLvl==0)
+            {
+                //moves the player
+                P2.innerHTML=playr;
+                //updates the player's position
+                pY--;
+            }
+            //resets the check for level completion
+            nxtLvl=0;
         }
+        else{
         //moves the player
-        P1.innerHTML="";
         P2.innerHTML=playr;
         //updates the player's position
-        pY--;}
+        pY--;}}
 }
 function moveDown()
 {
     let P1 = document.getElementById(`c${pY}r${pX}`);
     let P2 = document.getElementById(`c${pY+1}r${pX}`);
     if(pY<20 && P2.className=="Path"){
+        P1.innerHTML="";
         if(P2.innerHTML==pP)
         {
+            P1.innerHTML="";
             checkPP();
-        }
-        P1.innerHTML="";
+            if(nxtLvl==0)
+            {
+                //P1.innerHTML="";
+                P2.innerHTML=playr;
+                pY++;
+            }
+            nxtLvl=0;
+        }else{
+        //P1.innerHTML="";
         P2.innerHTML=playr;
-        pY++;}
+        pY++;}}
 }
 function moveLeft()
 {
     let P1 = document.getElementById(`c${pY}r${pX}`);
     let P2 = document.getElementById(`c${pY}r${pX-1}`);
     if(pX>0 && P2.className=="Path"){
+        P1.innerHTML="";
         if(P2.innerHTML==pP)
         {
+            P1.innerHTML="";
             checkPP();
-        }
-        P1.innerHTML="";
+            if(nxtLvl==0)
+            {
+                P2.innerHTML=playr;
+                pX--;
+            }
+            nxtLvl=0;
+        }else{
+        //P1.innerHTML="";
         P2.innerHTML=playr;
-        pX--;}
+        pX--;}}
 }
 function moveRight()
 {
     let P1 = document.getElementById(`c${pY}r${pX}`);
     let P2 = document.getElementById(`c${pY}r${pX+1}`);
     if(pX<20 && P2.className=="Path"){
+        P1.innerHTML="";
         if(P2.innerHTML==pP)
         {
+            
             checkPP();
+            if(nxtLvl==0)
+            {
+                P2.innerHTML=playr;
+                pX++;
+            }
+            nxtLvl=0;
         }
-        P1.innerHTML="";
+        else{
         P2.innerHTML=playr;
-        pX++;}
+        pX++;}}
 }
 function checkPP()
 {
@@ -171,6 +206,11 @@ function checkPP()
     }
     else
     {
+        nxtLvl=1;
+        //resets the player to the center of the map
+        pX=10;pY=10;
+        document.getElementById(`c${pY}r${pX}`).innerHTML=playr;
+        //increases the number of pellets and resets the level progression
         lvlScore+=10;
         lvlPrg=lvlScore-1;
         addPP();
@@ -183,12 +223,14 @@ function addPP()
     let A=10;
     do
     {
+        //alters the number of pellets if necessary
         A=(lvlScore>10)?lvlScore+1:lvlScore;
         //pellet's Y co-ordinates
         //pellet's X co-ordinates
         a=Math.floor(Math.random() * Math.floor(21));
         b=Math.floor(Math.random() * Math.floor(21));
         c=Lvl1[a][b];
+        //creates the pellets on spots where neither a wall or the player is present
         if(c==0 && c!=2){
             document.getElementById(`c${a}r${b}`).innerHTML=pP;
             i++;
@@ -203,7 +245,7 @@ function reStart()
     cScore=0;
     pX=10;pY=10;
     iX=0;iY=0;
-    lvlScore=10;lvlPrg=lvlScore;
+    lvlScore=10;lvlPrg=lvlScore-1;
     init();
 }
 // x,y grid-positions for the enemies

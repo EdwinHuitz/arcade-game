@@ -86,13 +86,52 @@ html
 }
 .rightSide
 {
-    background-color:red;
+    width:23vw;
+    height:80vh;
+    margin-right:1vw;
+    border:solid;
+    border-color:black;
+    text-align: center;
     display:grid;
     grid-area:rightD;
-    grid-template-columns: 1fr 3fr;
-    grid-template-rows: auto;
-    width:25vw;
-    height:80vh;
+    grid-template-columns: auto;
+    grid-template-rows: auto auto auto;
+    grid-template-areas:
+    ". title1 ."
+    ". des ."
+    ". title2 ."
+    ". des1 ."
+    ;
+}
+.rightSide>h1
+{
+    grid-area:title1;
+    text-decoration: underline;
+    font-size: xx-large;
+    padding:0;
+    margin:0;
+}
+.rightSide>h3
+{
+    grid-area: title2;
+    font-size:x-large;
+    text-decoration: underline;
+    padding:0;
+    margin:0;
+}
+.d1
+{
+    grid-area: des;
+    font-size: medium;
+    margin:0;
+    padding:0;
+}
+.d2
+{
+    grid-area: des1;
+    font-size: medium;
+    margin:0;
+    padding:0;
 }
 .buttonBar
 {
@@ -167,4 +206,8 @@ button
 #curScore::before
 {
     content:"Score:";
+}
+#curScore
+{
+    margin-right: 1vw;
 }
