@@ -2,7 +2,6 @@ html
 {
     box-sizing: border-box;
     margin:0;
-    padding:0;
     border:none;
 }
 *,*::before,*::after{box-sizing: inherit;}
@@ -24,9 +23,29 @@ html
     "btnB btnB btnB"
     ;
 }
+#startgame
+{
+    position:absolute;
+    top:40vh;
+    left:37%;
+    height:10vh;
+    padding-top:20px;
+    font-size:2em;
+    border-radius: 50%;
+    display:flex;
+    justify-content: center;
+    align-content: center;
+    text-align: center;
+    border:solid;
+    border-color:green;
+}
+#startgame:hover
+{
+    background-color:green;
+    color:white;
+}
 .score
 {
-    background-color: green;
     grid-area: userScore;
     display:flex;
     flex-direction: row-reverse;
@@ -36,7 +55,7 @@ html
 }
 .center
 {
-    background-color: purple;
+    background-color: silver;
     display:grid;
     grid-template-columns: repeat(21,1fr);
     grid-template-rows: repeat(21,1fr);
@@ -68,7 +87,7 @@ html
 }
 .buttonBar
 {
-    background-color: orange;
+    visibility: hidden;
     display:grid;
     grid-area:btnB;
     height:12vh;
