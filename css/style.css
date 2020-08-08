@@ -61,6 +61,10 @@ html
 .score>button
 {
     width:10%;
+    padding-left: 1px;
+    padding-top: 6px;
+    margin-top: 1vh;
+    margin-left: 1vw;
 }
 .center
 {
@@ -76,14 +80,15 @@ html
 }
 .leftSide
 {
+    width:23vw;
+    height:80vh;
+    margin-left:1vw;
     border:solid;
     border-color:black;
     display:grid;
     grid-area:leftD;
     grid-template-columns: 1fr 3fr;
     grid-template-rows: auto;
-    width:25vw;
-    height:80vh;
 }
 .rightSide
 {
