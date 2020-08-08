@@ -291,9 +291,11 @@ function moveGhouls()
         //checks whether the ai should move up or down and then executes the move
         function goUpDown()
         {
-            if(Dify<0 && U!=1){moveUp(gX,gY,ghoul);}
+
+            if(Dify<0 && U!=1){moveUp(gX,gY,ghoul);if(R!=1 && gX<pX){moveRight();}else if(L!=1 && gX>pX){moveLeft();}}
             else if(Dify>0 && D!=1){moveDown(gX,gY,ghoul);}
-            else{goLeftRight();}
+            //checks if a right turn can be made
+            else if(Difx>0 && R!=1){goLeftRight();}
         }
         //checks whether the ai should move left or right and then executes the move
         function goLeftRight()
@@ -301,6 +303,34 @@ function moveGhouls()
             if(Difx<0 && L!=1){moveLeft(gX,gY,ghoul);}
             else if(Difx>0 && R!=1){moveRight(gX,gY,ghoul);}
             else{goUpDown();}
+        }
+        //checks for deadends
+        function deadEnd()
+        {
+            //Up two from ghouls current position u1=up,u2=left,u3=right
+            let u1=ThisLvl[gY-2][gX];let u2=ThisLvl[gY-1][gX-1];let u3=ThisLvl[gY-1][gX+1];
+            //Down two from ghouls current position d1=down,d2=left,d3=right
+            let d1=ThisLvl[gY+2][gX];let d2=ThisLvl[gY+1][gX-1];let d3=ThisLvl[gY+1][gX+1];
+            //Right two from ghouls current position r1=right,r2=up,r3=down
+            let r1=ThisLvl[gY][gX+2];let r2=ThisLvl[gY-1][gX+1];let r3=ThisLvl[gY+1][gX+1];
+            //Left two from ghouls current position l1=left,r2=up,r3=down
+            let l1=ThisLvl[gY][gX-2];let l2=ThisLvl[gY-1][gX-1];let l3=ThisLvl[gY+1][gX-1];
+            if(prio===1)
+            {
+                switch(Dify)
+                {
+                    //going up
+                    case (Dify>0):if(u1==1&&u2==1&&u3==1){};
+                    break;
+                    //going down
+                    case (Dify<0):;
+                    break;
+                }
+            }
+            else if(prio===0)
+            {
+
+            }
         }
     //}while(Dify!=0)
 }
