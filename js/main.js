@@ -326,62 +326,62 @@ function moveGhouls()
             //if player y less than ghoul y and no wall above ghoul, move up. Else if while moving up you can get closer x wise, do it once
             if(Dify<0 && U!=1)
             {
-                moveUp(gX,gY,ghoul);
-                updateG();
-                //moves to the left
-                if(Difx<0 && L!=1)
-                {
-                    setTimeout(() => {
-                        moveLeft();
-                    }, 1000);
-                    //moveLeft();
-                }
-                else if(Difx>0 && UR!=1)
-                {
-
-                }
-                //moves to the right
-                else if(Difx>0 && R!=1)
-                {
-
-                    setTimeout(() => {
-                        moveRight();
-                    }, 1000);
-                    //moveRight();
-                }
+                setTimeout(() =>{moveUp(gX,gY,ghoul);}, 300);
+                setTimeout(() =>
+                {updateG();
+                //checks if a left or right turn is possible one space above or below the ghoul
+                if(Difx<0 && L===1 || Difx>0 && R===1){updateG();corners();}}, 300);
             }
             else if(Dify>0 && D!=1)
             {
-                moveDown(gX,gY,ghoul);
-                updateG();
-                if(Difx>0 && R!=1)
-                {
-                    setTimeout(() => {
-                        moveRight(gX,gY,ghoul);
-                    }, 400);
-                    //moveRight(gX,gY,ghoul);
-                }
-                else if(Difx<0 && L!=1)
-                {
-                    setTimeout(() => {
-                        moveLeft(gX,gY,ghoul);
-                    }, 400);
-                    //moveLeft(gX,gY,ghoul);
-                }
+                setTimeout(() =>{moveDown(gX,gY,ghoul);}, 300);
+                setTimeout(() =>{updateG();if(Difx<0 && L===1 || Difx>0 && R===1){corners();}}, 600);
             }
             //checks if a right turn can be made
-            else if(Difx>0 && R!=1){goLeftRight();}
+            else if(Difx>0 && L!=1 || Difx<0 && R!=1){goLeftRight();}
         }
         //checks whether the ai should move left or right and then executes the move
         function goLeftRight()
         {
-            if(Difx<0 && L!=1){moveLeft(gX,gY,ghoul);}
-            else if(Difx>0 && R!=1){moveRight(gX,gY,ghoul);}
-            else{goUpDown();}
+            if(Difx<0 && L!=1)
+            {
+                setTimeout(() =>{moveLeft(gX,gY,ghoul);}, 300);
+                setTimeout(() =>{updateG();if(Difx<0 && L===1 || Difx>0 && R===1){corners();}}, 600);
+            }
+            else if(Difx>0 && R!=1)
+            {
+                setTimeout(() =>{moveRight(gX,gY,ghoul);}, 300);
+                setTimeout(() =>{updateG();if(Difx<0 && L===1 || Difx>0 && R===1){corners();}}, 600);
+            }
+            else if(Dify<0 && U!=1 || Dify>0 && D!=1){goUpDown();}
         }
         function corners()
         {
-            
+            updateG();
+            //go up and then to the left
+            if(Difx<0 && UL!=1)
+            {
+                moveUp(gX,gY,ghoul);
+                setTimeout(() =>{updateG();moveLeft(gX,gY,ghoul);}, 300);
+            }
+            //go up and then to the right
+            else if(Difx>0 && UR!=1)
+            {
+                moveUp(gX,gY,ghoul);
+                setTimeout(() =>{updateG();moveRight(gX,gY,ghoul);}, 300);
+            }
+            //go down and then to the left
+            else if(Difx<0 && DL!=1)
+            {
+                moveDown(gX,gY,ghoul);
+                setTimeout(() =>{updateG();moveLeft(gX,gY,ghoul);}, 300);
+            }
+            //go down and then to the right
+            else if(Difx>0 && DR!=1)
+            {
+                moveDown(gX,gY,ghoul);
+                setTimeout(() =>{updateG();moveRight(gX,gY,ghoul);}, 300);
+            }
         }
         //checks for deadends
         function deadEnd()
