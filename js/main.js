@@ -36,6 +36,25 @@ let pY=10;
 //ghoul's previous and current x and y
 let gX=2;let pgX=1;
 let gY=2;let pgY=1;
+//current ghoul x,y and current player x,y
+let cG;let cP;
+//current ghoul direction of travel
+let cdY;let cdX;
+//grid surrounding ghoul
+let L;//x to the left
+let R;//x to the right
+let U;//y above
+let D;//y below
+let UL;//upper left
+let UR;//upper right
+let DL;//lower left
+let DR;//lower right
+//find difference in y
+let Dify;
+//find difference in x
+let Difx;
+//current priority
+let Prio;
 //decides the current level
 let ThisLvl;
 //checks whether to move on to the next level
@@ -265,35 +284,91 @@ function addPP()
 //
 //AI
 //
-//adds the ghouls
-function moveGhouls()
+
+//update ghoul co-ordinates
+function updateG()
 {
     //current ghoul x,y and current player x,y
-    let cG=ThisLvl[gY][gX];let cP=ThisLvl[pY][pX];
-    //grid surrounding ghoul(x before,x after)(y before,y after)
-    let L=ThisLvl[gY][gX-1];
-    let R=ThisLvl[gY][gX+1];
-    let U=ThisLvl[gY-1][gX];
-    let D=ThisLvl[gY+1][gX];
+    cG=ThisLvl[gY][gX];
+    cP=ThisLvl[pY][pX];
+    //current ghoul direction of travel
+    cdY=0;
+    cdX=0;
+    //grid surrounding ghoul
+    L=ThisLvl[gY][gX-1];//x to the left
+    R=ThisLvl[gY][gX+1];//x to the right
+    U=ThisLvl[gY-1][gX];//y above
+    D=ThisLvl[gY+1][gX];//y below
+    UL=ThisLvl[gY-1][gX-1];//upper left
+    UR=ThisLvl[gY-1][gX+1];//upper right
+    DL=ThisLvl[gY+1][gX-1];//lower left
+    DR=ThisLvl[gY+1][gX+1];//lower right
     //find difference in y
-    let Dify=pY-gY;
+    Dify=pY-gY;
     //find difference in x
-    let Difx=pX-gX;
-    //current priority
-    let Prio;
+    Difx=pX-gX;
+    //y distance has higher priority followed by x
+    Prio=(Dify!=0)?1:0;
+}
+//moves the ghouls
+function moveGhouls()
+{
+    
     //do
     //{
-        //y distance has higher priority followed by x
-        Prio=(Dify!=0)?1:0;
+        updateG();
         //move down if the player is below you and there isn't a wall blocking the path
         if(Prio===1){goUpDown();}
         else if(Prio===0){goLeftRight();}
         //checks whether the ai should move up or down and then executes the move
         function goUpDown()
         {
+            //if player y less than ghoul y and no wall above ghoul, move up. Else if while moving up you can get closer x wise, do it once
+            if(Dify<0 && U!=1)
+            {
+                moveUp(gX,gY,ghoul);
+                updateG();
+                //moves to the left
+                if(Difx<0 && L!=1)
+                {
+                    setTimeout(() => {
+                        moveLeft();
+                    }, 1000);
+                    //moveLeft();
+                }
+                else if(Difx>0 && UR!=1)
+                {
 
-            if(Dify<0 && U!=1){moveUp(gX,gY,ghoul);if(R!=1 && gX<pX){moveRight();}else if(L!=1 && gX>pX){moveLeft();}}
-            else if(Dify>0 && D!=1){moveDown(gX,gY,ghoul);}
+                }
+                //moves to the right
+                else if(Difx>0 && R!=1)
+                {
+
+                    setTimeout(() => {
+                        moveRight();
+                    }, 1000);
+                    //moveRight();
+                }
+            }
+            else if(Dify>0 && D!=1)
+            {
+                moveDown(gX,gY,ghoul);
+                updateG();
+                if(Difx>0 && R!=1)
+                {
+                    setTimeout(() => {
+                        moveRight(gX,gY,ghoul);
+                    }, 400);
+                    //moveRight(gX,gY,ghoul);
+                }
+                else if(Difx<0 && L!=1)
+                {
+                    setTimeout(() => {
+                        moveLeft(gX,gY,ghoul);
+                    }, 400);
+                    //moveLeft(gX,gY,ghoul);
+                }
+            }
             //checks if a right turn can be made
             else if(Difx>0 && R!=1){goLeftRight();}
         }
@@ -303,6 +378,10 @@ function moveGhouls()
             if(Difx<0 && L!=1){moveLeft(gX,gY,ghoul);}
             else if(Difx>0 && R!=1){moveRight(gX,gY,ghoul);}
             else{goUpDown();}
+        }
+        function corners()
+        {
+            
         }
         //checks for deadends
         function deadEnd()
