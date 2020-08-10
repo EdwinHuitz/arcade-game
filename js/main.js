@@ -14,6 +14,7 @@ const playr = '<div class="Player" id="p"></div>';
 const ghoul = '<div class="Ghoul"></div>';
 //declaring point pellet
 const pP='<div class="pPoint"></div>';
+const pPh='<div class="pPointh"></div>';
 
 /*----- app's state (variables) -----*/
 
@@ -147,11 +148,13 @@ function moveUp(x,y,i)
     //gets the player's next position
     let P2 = document.getElementById(`c${y-1}r${x}`);
     //checks if the player can move to this spot
-    if(y>0 && P2.className=="Path"){
-        P1.innerHTML="";
-        //checks for powerpoints
-        if(i.toString() == playr.toString() && P2.innerHTML==pP)
+    if(y>0 && P2.className=="Path")
+    {
+        //checks for pellets
+        if(i.toString() == playr && P2.innerHTML==pP)
         {
+            //clears the previous space
+            P1.innerHTML="";
             checkPP();
             //checks for level completion
             if(nxtLvl==false)
@@ -160,10 +163,25 @@ function moveUp(x,y,i)
                 P2.innerHTML=i;
             }
         }
-        else{
-            //moves the player
+        //moves the ghoul without deleting the pellets
+        else if (i.toString() == ghoul && P2.innerHTML==pP)
+        {
+            P1.innerHTML="";
+            P2.innerHTML=`${pPh}${ghoul}`;
+            (i.toString() == ghoul)?gY--:"";
+        }
+        else if (i.toString() == `${pPh}${ghoul}`)
+        {
+            P1.innerHTML=pP;
+            P2.innerHTML=ghoul;
+            (i.toString() == ghoul)?gY--:"";
+        }
+        else
+        {
+            P1.innerHTML="";
+            //moves the player or ghoul
             P2.innerHTML=i;
-            (i.toString() == ghoul.toString())?gY--:"";
+            (i.toString() == ghoul)?gY--:"";
         }
     }
 }
@@ -171,9 +189,10 @@ function moveDown(x,y,i)
 {
     let P1 = document.getElementById(`c${y}r${x}`);
     let P2 = document.getElementById(`c${y+1}r${x}`);
-    if(y<20 && P2.className=="Path"){
+    if(y<20 && P2.className=="Path")
+    {
         P1.innerHTML="";
-        if(i.toString() == playr.toString() && P2.innerHTML==pP)
+        if(i.toString() == playr && P2.innerHTML==pP)
         {
             P1.innerHTML="";
             checkPP();
@@ -181,9 +200,24 @@ function moveDown(x,y,i)
             {
                 P2.innerHTML=i;
             }
-        }else{
+        }
+        else if (i.toString() == ghoul && P2.innerHTML==pP)
+        {
+            P1.innerHTML="";
+            P2.innerHTML=`${pPh}${ghoul}`;
+            (i.toString() == ghoul)?gY++:"";
+        }
+        else if (i.toString() == `${pPh}${ghoul}`)
+        {
+            P1.innerHTML=pP;
+            P2.innerHTML=ghoul;
+            (i.toString() == ghoul)?gY++:"";
+        }
+        else
+        {
+            P1.innerHTML="";
             P2.innerHTML=i;
-            (i.toString() == ghoul.toString())?gY++:"";
+            (i.toString() == ghoul)?gY++:"";
         }
     }
 }
@@ -191,20 +225,33 @@ function moveLeft(x,y,i)
 {
     let P1 = document.getElementById(`c${y}r${x}`);
     let P2 = document.getElementById(`c${y}r${x-1}`);
-    if(x>0 && P2.className=="Path"){
-        P1.innerHTML="";
-        if(i.toString() == playr.toString() && P2.innerHTML==pP)
+    if(x>0 && P2.className=="Path")
+    {
+        if(i.toString() == playr && P2.innerHTML==pP)
         {
-            console.log("a");
+            P1.innerHTML="";
             checkPP();
             if(nxtLvl==false)
             {
                 P2.innerHTML=i;
             }
         }
-        else{
-            P2.innerHTML=i;
+        else if (i.toString() == ghoul && P2.innerHTML==pP)
+        {
+            P1.innerHTML="";
+            P2.innerHTML=`${pPh}${ghoul}`;
             (i.toString() == ghoul.toString())?gX--:"";
+        }
+        else if (i.toString() == `${pPh}${ghoul}`)
+        {
+            P1.innerHTML=pP;
+            P2.innerHTML=ghoul;
+            (i.toString() == ghoul)?gX--:"";
+        }
+        else{
+            P1.innerHTML="";
+            P2.innerHTML=i;
+            (i.toString() == ghoul)?gX--:"";
         }
     }
 }
@@ -212,20 +259,33 @@ function moveRight(x,y,i)
 {
     let P1 = document.getElementById(`c${y}r${x}`);
     let P2 = document.getElementById(`c${y}r${x+1}`);
-    if(x<20 && P2.className=="Path"){
-        P1.innerHTML="";
-        if(i.toString() == playr.toString() && P2.innerHTML==pP)
+    if(x<20 && P2.className=="Path")
+    {
+        if(i.toString() == playr && P2.innerHTML==pP)
         {
-            
+            P1.innerHTML="";
             checkPP();
             if(nxtLvl==false)
             {
                 P2.innerHTML=i;
             }
         }
+        else if (i.toString() == ghoul && P2.innerHTML==pP)
+        {
+            P1.innerHTML="";
+            P2.innerHTML=`${pPh}${ghoul}`;
+            (i.toString() == ghoul)?gX++:"";
+        }
+        else if (i.toString() == `${pPh}${ghoul}`)
+        {
+            P1.innerHTML=pP;
+            P2.innerHTML=ghoul;
+            (i.toString() == ghoul)?gX++:"";
+        }
         else{
+            P1.innerHTML="";
             P2.innerHTML=i;
-            (i.toString()== ghoul.toString())?gX++:"";
+            (i.toString()== ghoul)?gX++:"";
         }
     }
 }
@@ -267,8 +327,7 @@ function addPP()
     {
         //alters the number of pellets if necessary
         A=(lvlScore>10)?lvlScore+1:lvlScore;
-        //pellet's Y co-ordinates
-        //pellet's X co-ordinates
+        //pellet's Y and X co-ordinates
         let a=Math.floor(Math.random() * Math.floor(21));
         let b=Math.floor(Math.random() * Math.floor(21));
         let c=ThisLvl[a][b];
@@ -330,14 +389,18 @@ function moveGhouls()
                 setTimeout(() =>
                 {updateG();
                 //checks if a left or right turn is possible one space above or below the ghoul
-                if(Difx<0 && L===1 || Difx>0 && R===1){updateG();corners();}}, 300);
+                if(Difx<0 && L===1 || Difx>0 && R===1){updateG();cornersY();}}, 600);
             }
             else if(Dify>0 && D!=1)
             {
                 setTimeout(() =>{moveDown(gX,gY,ghoul);}, 300);
-                setTimeout(() =>{updateG();if(Difx<0 && L===1 || Difx>0 && R===1){corners();}}, 600);
+                setTimeout(() =>{updateG();if(Difx<0 && L===1 || Difx>0 && R===1){cornersY();}}, 600);
             }
-            //checks if a right turn can be made
+            else if (Dify===0)
+            {
+                cornersY();
+            }
+            //checks if a left or right turn can be made
             else if(Difx>0 && L!=1 || Difx<0 && R!=1){goLeftRight();}
         }
         //checks whether the ai should move left or right and then executes the move
@@ -346,42 +409,38 @@ function moveGhouls()
             if(Difx<0 && L!=1)
             {
                 setTimeout(() =>{moveLeft(gX,gY,ghoul);}, 300);
-                setTimeout(() =>{updateG();if(Difx<0 && L===1 || Difx>0 && R===1){corners();}}, 600);
+                setTimeout(() =>{updateG();if(Difx<0 && L===1 || Difx>0 && R===1){cornersX();}}, 600);
             }
             else if(Difx>0 && R!=1)
             {
                 setTimeout(() =>{moveRight(gX,gY,ghoul);}, 300);
-                setTimeout(() =>{updateG();if(Difx<0 && L===1 || Difx>0 && R===1){corners();}}, 600);
+                setTimeout(() =>{updateG();if(Difx<0 && L===1 || Difx>0 && R===1){cornersX();}}, 600);
             }
             else if(Dify<0 && U!=1 || Dify>0 && D!=1){goUpDown();}
         }
-        function corners()
+        function cornersY()
         {
             updateG();
             //go up and then to the left
-            if(Difx<0 && UL!=1)
-            {
-                moveUp(gX,gY,ghoul);
-                setTimeout(() =>{updateG();moveLeft(gX,gY,ghoul);}, 300);
-            }
+            if(Difx<0 && UL!=1){moveUp(gX,gY,ghoul);setTimeout(() =>{updateG();moveLeft(gX,gY,ghoul);}, 300);}
             //go up and then to the right
-            else if(Difx>0 && UR!=1)
-            {
-                moveUp(gX,gY,ghoul);
-                setTimeout(() =>{updateG();moveRight(gX,gY,ghoul);}, 300);
-            }
+            else if(Difx>0 && UR!=1){moveUp(gX,gY,ghoul);setTimeout(() =>{updateG();moveRight(gX,gY,ghoul);}, 300);}
             //go down and then to the left
-            else if(Difx<0 && DL!=1)
-            {
-                moveDown(gX,gY,ghoul);
-                setTimeout(() =>{updateG();moveLeft(gX,gY,ghoul);}, 300);
-            }
+            else if(Difx<0 && DL!=1){moveDown(gX,gY,ghoul);setTimeout(() =>{updateG();moveLeft(gX,gY,ghoul);}, 300);}
             //go down and then to the right
-            else if(Difx>0 && DR!=1)
-            {
-                moveDown(gX,gY,ghoul);
-                setTimeout(() =>{updateG();moveRight(gX,gY,ghoul);}, 300);
-            }
+            else if(Difx>0 && DR!=1){moveDown(gX,gY,ghoul);setTimeout(() =>{updateG();moveRight(gX,gY,ghoul);}, 300);}
+        }
+        function cornersX()
+        {
+            updateG();
+            //go to the left and up
+            if(Dify<0 && UL!=1){moveLeft(gX,gY,ghoul);setTimeout(() =>{updateG();moveUp(gX,gY,ghoul);}, 300);}
+            //go to the right and up
+            else if(Dify<0 && UR!=1){moveRight(gX,gY,ghoul);setTimeout(() =>{updateG();moveUp(gX,gY,ghoul);}, 300);}
+            //go to the left and down
+            else if(Dify>0 && DL!=1){moveLeft(gX,gY,ghoul);setTimeout(() =>{updateG();moveDown(gX,gY,ghoul);}, 300);}
+            //go to the right and down
+            else if(Dify>0 && DR!=1){moveRight(gX,gY,ghoul);setTimeout(() =>{updateG();moveDown(gX,gY,ghoul);}, 300);}
         }
         //checks for deadends
         function deadEnd()
@@ -411,19 +470,19 @@ function moveGhouls()
 
             }
         }
-    //}while(Dify!=0)
+    //}while(Dify>0 || Dify<0);
 }
-
+setInterval(()=>{moveGhouls()},1000);
 /* 
 //have two variables each for x and y
 //let bforeY=previous direction(-1=going up)
 //let beforeX=previous direction(-1=going left)
 //let nowY=current position(+1=going down)
 //let nowX=current x position(+1=going right)
-start going down and keep checking to the right every move to try and move closer to the player when possible
+//start going down and keep checking to the right every move to try and move closer to the player when possible
 check for dead ends
-check your position vs player
-check for walls blocking way towards player?
+//check your position vs player
+//check for walls blocking way towards player?
 when calculating which direction to go, don't allow going back your previous way unless it's a deadend?
 
 */
@@ -431,6 +490,8 @@ when calculating which direction to go, don't allow going back your previous way
 //resets all variables and restarts the game
 function reStart()
 {
+    gX=2;gY=2;
+    updateG();
     gBoard.innerHTML="";
     cScore=0;
     pX=10;pY=10;

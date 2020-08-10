@@ -201,6 +201,7 @@ button
 }
 .pPoint
 {
+    position:relative;
     background-color:yellow;
     border-radius: 50%;
     width:60%;
@@ -209,8 +210,13 @@ button
     margin-top:15%;
     margin-left:20%;
 }
+.pPointh
+{
+    display:none;
+}
 .Ghoul
 {
+    position:relative;
     background-color:red;
     border-radius: 50%;
     width:100%;
