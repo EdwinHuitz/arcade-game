@@ -1,12 +1,13 @@
-import {Lvl1,Lvl2} from './maps.js';
+import {Lvl1,Lvl2,Lvl3} from './maps.js';
 /*----- constants -----*/
 /*----- cached element references -----*/
 
 //declaring the gameboard
 const gBoard = document.getElementById("board");
-//declaring the current score, level, and highscore
+//declaring the current score, level, health, and highscore
 const curScore=document.getElementById("curScore");
 const curLevel=document.getElementById("curLevel");
+const curHealth=document.getElementById("health");
 const highScore='';
 //declaring the player
 const playr = '<div class="Player" id="p"></div>';
@@ -34,13 +35,13 @@ let wall;
 //player's x and y
 let pX=10;
 let pY=10;
-//ghoul's previous and current x and y
-let gX=2;let pgX=1;
-let gY=2;let pgY=1;
-//current ghoul x,y and current player x,y
-let cG;let cP;
-//current ghoul direction of travel
-let cdY;let cdX;
+let cP;
+//ghoul's x and y
+let gX=2;
+let gY=2;
+let cG;
+//shows whether the ghoul has stepped on a power pellet
+let gp=0;
 //grid surrounding ghoul
 let L;//x to the left
 let R;//x to the right
@@ -54,6 +55,8 @@ let DR;//lower right
 let Dify;
 //find difference in x
 let Difx;
+//player's current number of lives
+let pHealth=10;
 //current priority
 let Prio;
 //decides the current level
@@ -66,10 +69,10 @@ let nxtLvl=false;
 //button clicks
 document.getElementById("startgame").addEventListener('click',init);
 document.getElementById("reStart").addEventListener('click',reStart);
-document.getElementById("mUp").addEventListener('click',moveGhouls);
-document.getElementById("mDown").addEventListener('click',moveDown);
-document.getElementById("mLeft").addEventListener('click',moveLeft);
-document.getElementById("mRight").addEventListener('click',moveRight);
+document.getElementById("mUp").addEventListener('click',()=>{moveUp(pX,pY,playr)});
+document.getElementById("mDown").addEventListener('click',()=>{moveDown(pX,pY,playr)});
+document.getElementById("mLeft").addEventListener('click',()=>{moveLeft(pX,pY,playr)});
+document.getElementById("mRight").addEventListener('click',()=>{moveRight(pX,pY,playr)});
 //keys pressed
 window.addEventListener('keydown',a=>movePlayer(a));
 
@@ -79,13 +82,14 @@ window.addEventListener('keydown',a=>movePlayer(a));
 function init()
 {
     iY=0;
-    let gStart=Math.floor(Math.random() * Math.floor(2));
-    ThisLvl=(gStart==0)?Lvl1:Lvl2;
+    let gStart=Math.floor(Math.random() * Math.floor(3));
+    ThisLvl=(gStart==0)?Lvl1:(gStart==1)?Lvl2:Lvl3;
     //use to debug new maps
     //ThisLvl=Lvl2;
     curLevel.innerHTML=lvlScore/10;
     curScore.innerHTML=cScore;
     gBoard.innerHTML="";
+    curHealth.innerHTML=`<p>Health: ${pHealth*10}%</p>`;
     document.getElementById("btnBar").style.visibility="visible";
     //building lvl
     ThisLvl.forEach((a) => {
@@ -102,9 +106,6 @@ function init()
             break;
             //adds the player
             case 2:gBoard.innerHTML+=path;document.getElementById(`c${iY}r${iX}`).innerHTML+=playr;iX++;
-            break;
-            //adds the ghouls
-            case 3:gBoard.innerHTML+=path;document.getElementById(`c${iY}r${iX}`).innerHTML+=ghoul;iX++;
             break;
         }
     }while(iX<21)
@@ -140,6 +141,7 @@ function movePlayer(a)
         break;
     }
 }
+
 //Directions the object moves x,y,id
 function moveUp(x,y,i)
 {
@@ -167,14 +169,16 @@ function moveUp(x,y,i)
         else if (i.toString() == ghoul && P2.innerHTML==pP)
         {
             P1.innerHTML="";
-            P2.innerHTML=`${pPh}${ghoul}`;
+            P2.innerHTML=ghoul;
             (i.toString() == ghoul)?gY--:"";
+            gp=1;
         }
-        else if (i.toString() == `${pPh}${ghoul}`)
+        else if (i.toString() == ghoul && gp==1)
         {
             P1.innerHTML=pP;
             P2.innerHTML=ghoul;
             (i.toString() == ghoul)?gY--:"";
+            gp=0;
         }
         else
         {
@@ -204,14 +208,16 @@ function moveDown(x,y,i)
         else if (i.toString() == ghoul && P2.innerHTML==pP)
         {
             P1.innerHTML="";
-            P2.innerHTML=`${pPh}${ghoul}`;
+            P2.innerHTML=ghoul;
             (i.toString() == ghoul)?gY++:"";
+            gp=1;
         }
-        else if (i.toString() == `${pPh}${ghoul}`)
+        else if (i.toString() == ghoul && gp==1)
         {
             P1.innerHTML=pP;
             P2.innerHTML=ghoul;
             (i.toString() == ghoul)?gY++:"";
+            gp=0;
         }
         else
         {
@@ -239,14 +245,16 @@ function moveLeft(x,y,i)
         else if (i.toString() == ghoul && P2.innerHTML==pP)
         {
             P1.innerHTML="";
-            P2.innerHTML=`${pPh}${ghoul}`;
+            P2.innerHTML=ghoul;
             (i.toString() == ghoul.toString())?gX--:"";
+            gp=1;
         }
-        else if (i.toString() == `${pPh}${ghoul}`)
+        else if (i.toString() == ghoul && gp==1)
         {
             P1.innerHTML=pP;
             P2.innerHTML=ghoul;
             (i.toString() == ghoul)?gX--:"";
+            gp=0;
         }
         else{
             P1.innerHTML="";
@@ -273,14 +281,16 @@ function moveRight(x,y,i)
         else if (i.toString() == ghoul && P2.innerHTML==pP)
         {
             P1.innerHTML="";
-            P2.innerHTML=`${pPh}${ghoul}`;
+            P2.innerHTML=ghoul;
             (i.toString() == ghoul)?gX++:"";
+            gp=1;
         }
-        else if (i.toString() == `${pPh}${ghoul}`)
+        else if (i.toString() == ghoul && gp==1)
         {
             P1.innerHTML=pP;
             P2.innerHTML=ghoul;
             (i.toString() == ghoul)?gX++:"";
+            gp=0;
         }
         else{
             P1.innerHTML="";
@@ -314,6 +324,7 @@ function checkPP()
         //increases the number of pellets and resets the level progression
         lvlScore+=10;
         lvlPrg=lvlScore-1;
+        (pHealth<11)?pHealth+=1:"";
         init();
     }
 }
@@ -336,10 +347,17 @@ function addPP()
             document.getElementById(`c${a}r${b}`).innerHTML=pP;
             iP++;
         }
-    }while(iP<A);
+    }while(iP<A+1);
     curLevel.innerHTML=lvlScore/10;
 }
-
+//determines the player's lives
+function hitPlayer()
+{
+    console.log("ouch");
+    (pHealth!=0)?pHealth-=2:reStart();
+    curHealth.style.width=`${pHealth*10}%`;
+    curHealth.innerHTML=`<p>Health: ${pHealth*10}%</p>`;
+}
 //
 //AI
 //
@@ -350,9 +368,6 @@ function updateG()
     //current ghoul x,y and current player x,y
     cG=ThisLvl[gY][gX];
     cP=ThisLvl[pY][pX];
-    //current ghoul direction of travel
-    cdY=0;
-    cdX=0;
     //grid surrounding ghoul
     L=ThisLvl[gY][gX-1];//x to the left
     R=ThisLvl[gY][gX+1];//x to the right
@@ -369,127 +384,113 @@ function updateG()
     //y distance has higher priority followed by x
     Prio=(Dify!=0)?1:0;
 }
-//moves the ghouls
+//movement logic for the ghoul
 function moveGhouls()
 {
-    
-    //do
-    //{
+    updateG();
+    (Dify===0 && Difx ===0)?hitPlayer():"";
+    //move down if the player is below you and there isn't a wall blocking the path
+    if(Prio===1){goUpDown();}
+    else if(Prio===0){goLeftRight();}
+    //checks whether the ai should move up or down and then executes the move
+    function goUpDown()
+    {
+        //if player y less than ghoul y and no wall above ghoul, move up. Else if while moving up you can get closer x wise, do it once
+        if(Dify<0 && U!=1)
+        {
+            setTimeout(() =>{moveUp(gX,gY,ghoul);}, 300);
+            setTimeout(() =>
+            {updateG();
+            //checks if a left or right turn is possible one space above or below the ghoul
+            if(Difx<0 && L===1 || Difx>0 && R===1){updateG();cornersY();}}, 600);
+        }
+        else if(Dify>0 && D!=1)
+        {
+            setTimeout(() =>{moveDown(gX,gY,ghoul);}, 300);
+            setTimeout(() =>{updateG();if(Difx<0 && L===1 || Difx>0 && R===1){cornersY();}}, 600);
+        }
+        else if (Dify===0)
+        {
+            cornersY();
+        }
+        //checks if a left or right turn can be made
+        else if(Difx>0 && L!=1 || Difx<0 && R!=1){goLeftRight();}
+    }
+    //checks whether the ai should move left or right and then executes the move
+    function goLeftRight()
+    {
+        if(Difx<0 && L!=1)
+        {
+            setTimeout(() =>{moveLeft(gX,gY,ghoul);}, 300);
+            setTimeout(() =>{updateG();if(Difx<0 && L===1 || Difx>0 && R===1){cornersX();}}, 600);
+        }
+        else if(Difx>0 && R!=1)
+        {
+            setTimeout(() =>{moveRight(gX,gY,ghoul);}, 300);
+            setTimeout(() =>{updateG();if(Difx<0 && L===1 || Difx>0 && R===1){cornersX();}}, 600);
+        }
+        else if(Dify<0 && U!=1 || Dify>0 && D!=1){goUpDown();}
+    }
+    function cornersY()
+    {
         updateG();
-        //move down if the player is below you and there isn't a wall blocking the path
-        if(Prio===1){goUpDown();}
-        else if(Prio===0){goLeftRight();}
-        //checks whether the ai should move up or down and then executes the move
-        function goUpDown()
+        //go up and to the left
+        if(Difx<0 && UL!=1){moveUp(gX,gY,ghoul);setTimeout(() =>{updateG();moveLeft(gX,gY,ghoul);}, 300);}
+        //go up and to the right
+        else if(Difx>0 && UR!=1){moveUp(gX,gY,ghoul);setTimeout(() =>{updateG();moveRight(gX,gY,ghoul);}, 300);}
+        //go down and to the left
+        else if(Difx<0 && DL!=1){moveDown(gX,gY,ghoul);setTimeout(() =>{updateG();moveLeft(gX,gY,ghoul);}, 300);}
+        //go down and to the right
+        else if(Difx>0 && DR!=1){moveDown(gX,gY,ghoul);setTimeout(() =>{updateG();moveRight(gX,gY,ghoul);}, 300);}
+    }
+    function cornersX()
+    {
+        updateG();
+        //go to the left and up
+        if(Dify<0 && UL!=1){moveLeft(gX,gY,ghoul);setTimeout(() =>{updateG();moveUp(gX,gY,ghoul);}, 300);}
+        //go to the right and up
+        else if(Dify<0 && UR!=1){moveRight(gX,gY,ghoul);setTimeout(() =>{updateG();moveUp(gX,gY,ghoul);}, 300);}
+        //go to the left and down
+        else if(Dify>0 && DL!=1){moveLeft(gX,gY,ghoul);setTimeout(() =>{updateG();moveDown(gX,gY,ghoul);}, 300);}
+        //go to the right and down
+        else if(Dify>0 && DR!=1){moveRight(gX,gY,ghoul);setTimeout(() =>{updateG();moveDown(gX,gY,ghoul);}, 300);}
+    }
+    //checks for deadends
+    function deadEnd()
+    {
+        //Up two from ghouls current position u1=up,u2=left,u3=right
+        let u1=ThisLvl[gY-2][gX];let u2=ThisLvl[gY-1][gX-1];let u3=ThisLvl[gY-1][gX+1];
+        //Down two from ghouls current position d1=down,d2=left,d3=right
+        let d1=ThisLvl[gY+2][gX];let d2=ThisLvl[gY+1][gX-1];let d3=ThisLvl[gY+1][gX+1];
+        //Right two from ghouls current position r1=right,r2=up,r3=down
+        let r1=ThisLvl[gY][gX+2];let r2=ThisLvl[gY-1][gX+1];let r3=ThisLvl[gY+1][gX+1];
+        //Left two from ghouls current position l1=left,r2=up,r3=down
+        let l1=ThisLvl[gY][gX-2];let l2=ThisLvl[gY-1][gX-1];let l3=ThisLvl[gY+1][gX-1];
+        if(prio===1)
         {
-            //if player y less than ghoul y and no wall above ghoul, move up. Else if while moving up you can get closer x wise, do it once
-            if(Dify<0 && U!=1)
+            switch(Dify)
             {
-                setTimeout(() =>{moveUp(gX,gY,ghoul);}, 300);
-                setTimeout(() =>
-                {updateG();
-                //checks if a left or right turn is possible one space above or below the ghoul
-                if(Difx<0 && L===1 || Difx>0 && R===1){updateG();cornersY();}}, 600);
+                //going up
+                case (Dify>0):if(u1==1&&u2==1&&u3==1){};
+                break;
+                //going down
+                case (Dify<0):;
+                break;
             }
-            else if(Dify>0 && D!=1)
-            {
-                setTimeout(() =>{moveDown(gX,gY,ghoul);}, 300);
-                setTimeout(() =>{updateG();if(Difx<0 && L===1 || Difx>0 && R===1){cornersY();}}, 600);
-            }
-            else if (Dify===0)
-            {
-                cornersY();
-            }
-            //checks if a left or right turn can be made
-            else if(Difx>0 && L!=1 || Difx<0 && R!=1){goLeftRight();}
         }
-        //checks whether the ai should move left or right and then executes the move
-        function goLeftRight()
+        else if(prio===0)
         {
-            if(Difx<0 && L!=1)
-            {
-                setTimeout(() =>{moveLeft(gX,gY,ghoul);}, 300);
-                setTimeout(() =>{updateG();if(Difx<0 && L===1 || Difx>0 && R===1){cornersX();}}, 600);
-            }
-            else if(Difx>0 && R!=1)
-            {
-                setTimeout(() =>{moveRight(gX,gY,ghoul);}, 300);
-                setTimeout(() =>{updateG();if(Difx<0 && L===1 || Difx>0 && R===1){cornersX();}}, 600);
-            }
-            else if(Dify<0 && U!=1 || Dify>0 && D!=1){goUpDown();}
-        }
-        function cornersY()
-        {
-            updateG();
-            //go up and then to the left
-            if(Difx<0 && UL!=1){moveUp(gX,gY,ghoul);setTimeout(() =>{updateG();moveLeft(gX,gY,ghoul);}, 300);}
-            //go up and then to the right
-            else if(Difx>0 && UR!=1){moveUp(gX,gY,ghoul);setTimeout(() =>{updateG();moveRight(gX,gY,ghoul);}, 300);}
-            //go down and then to the left
-            else if(Difx<0 && DL!=1){moveDown(gX,gY,ghoul);setTimeout(() =>{updateG();moveLeft(gX,gY,ghoul);}, 300);}
-            //go down and then to the right
-            else if(Difx>0 && DR!=1){moveDown(gX,gY,ghoul);setTimeout(() =>{updateG();moveRight(gX,gY,ghoul);}, 300);}
-        }
-        function cornersX()
-        {
-            updateG();
-            //go to the left and up
-            if(Dify<0 && UL!=1){moveLeft(gX,gY,ghoul);setTimeout(() =>{updateG();moveUp(gX,gY,ghoul);}, 300);}
-            //go to the right and up
-            else if(Dify<0 && UR!=1){moveRight(gX,gY,ghoul);setTimeout(() =>{updateG();moveUp(gX,gY,ghoul);}, 300);}
-            //go to the left and down
-            else if(Dify>0 && DL!=1){moveLeft(gX,gY,ghoul);setTimeout(() =>{updateG();moveDown(gX,gY,ghoul);}, 300);}
-            //go to the right and down
-            else if(Dify>0 && DR!=1){moveRight(gX,gY,ghoul);setTimeout(() =>{updateG();moveDown(gX,gY,ghoul);}, 300);}
-        }
-        //checks for deadends
-        function deadEnd()
-        {
-            //Up two from ghouls current position u1=up,u2=left,u3=right
-            let u1=ThisLvl[gY-2][gX];let u2=ThisLvl[gY-1][gX-1];let u3=ThisLvl[gY-1][gX+1];
-            //Down two from ghouls current position d1=down,d2=left,d3=right
-            let d1=ThisLvl[gY+2][gX];let d2=ThisLvl[gY+1][gX-1];let d3=ThisLvl[gY+1][gX+1];
-            //Right two from ghouls current position r1=right,r2=up,r3=down
-            let r1=ThisLvl[gY][gX+2];let r2=ThisLvl[gY-1][gX+1];let r3=ThisLvl[gY+1][gX+1];
-            //Left two from ghouls current position l1=left,r2=up,r3=down
-            let l1=ThisLvl[gY][gX-2];let l2=ThisLvl[gY-1][gX-1];let l3=ThisLvl[gY+1][gX-1];
-            if(prio===1)
-            {
-                switch(Dify)
-                {
-                    //going up
-                    case (Dify>0):if(u1==1&&u2==1&&u3==1){};
-                    break;
-                    //going down
-                    case (Dify<0):;
-                    break;
-                }
-            }
-            else if(prio===0)
-            {
 
-            }
         }
-    //}while(Dify>0 || Dify<0);
+    }
 }
-setInterval(()=>{moveGhouls()},1000);
-/* 
-//have two variables each for x and y
-//let bforeY=previous direction(-1=going up)
-//let beforeX=previous direction(-1=going left)
-//let nowY=current position(+1=going down)
-//let nowX=current x position(+1=going right)
-//start going down and keep checking to the right every move to try and move closer to the player when possible
-check for dead ends
-//check your position vs player
-//check for walls blocking way towards player?
-when calculating which direction to go, don't allow going back your previous way unless it's a deadend?
-
-*/
+//makes the ghoul move
+setInterval(()=>{moveGhouls()},650);
 
 //resets all variables and restarts the game
 function reStart()
 {
+    pHealth=10;
     gX=2;gY=2;
     updateG();
     gBoard.innerHTML="";
@@ -499,7 +500,6 @@ function reStart()
     lvlScore=10;lvlPrg=lvlScore-1;
     init();
 }
-//// x,y grid-positions for the enemies
 // every 100 points will grant the player another life
 // let the enemies travel around the grid using only 0s by checking their surrounding every time they move and choose their movement direction based on that and a random number
 // check during every move if the enemies have collided with the player and if they have, remove 1 life from the player and set the player to lose should their remaining lives reach negative
