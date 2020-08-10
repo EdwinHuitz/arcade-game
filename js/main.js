@@ -108,14 +108,14 @@ function init()
             case 2:gBoard.innerHTML+=path;document.getElementById(`c${iY}r${iX}`).innerHTML+=playr;iX++;
             break;
         }
-    }while(iX<21)
+    }while(iX<21);
     iX=0;
     iY++;
     });
     addPP();
 }
 //used for debugging to avoid having to click start
-init();
+//init();
 
 //
 //Player Movement
@@ -456,33 +456,33 @@ function moveGhouls()
         else if(Dify>0 && DR!=1){moveRight(gX,gY,ghoul);setTimeout(() =>{updateG();moveDown(gX,gY,ghoul);}, 300);}
     }
     //checks for deadends
-    function deadEnd()
-    {
-        //Up two from ghouls current position u1=up,u2=left,u3=right
-        let u1=ThisLvl[gY-2][gX];let u2=ThisLvl[gY-1][gX-1];let u3=ThisLvl[gY-1][gX+1];
-        //Down two from ghouls current position d1=down,d2=left,d3=right
-        let d1=ThisLvl[gY+2][gX];let d2=ThisLvl[gY+1][gX-1];let d3=ThisLvl[gY+1][gX+1];
-        //Right two from ghouls current position r1=right,r2=up,r3=down
-        let r1=ThisLvl[gY][gX+2];let r2=ThisLvl[gY-1][gX+1];let r3=ThisLvl[gY+1][gX+1];
-        //Left two from ghouls current position l1=left,r2=up,r3=down
-        let l1=ThisLvl[gY][gX-2];let l2=ThisLvl[gY-1][gX-1];let l3=ThisLvl[gY+1][gX-1];
-        if(prio===1)
-        {
-            switch(Dify)
-            {
-                //going up
-                case (Dify>0):if(u1==1&&u2==1&&u3==1){};
-                break;
-                //going down
-                case (Dify<0):;
-                break;
-            }
-        }
-        else if(prio===0)
-        {
+    // function deadEnd()
+    // {
+    //     //Up two from ghouls current position u1=up,u2=left,u3=right
+    //     let u1=ThisLvl[gY-2][gX];let u2=ThisLvl[gY-1][gX-1];let u3=ThisLvl[gY-1][gX+1];
+    //     //Down two from ghouls current position d1=down,d2=left,d3=right
+    //     let d1=ThisLvl[gY+2][gX];let d2=ThisLvl[gY+1][gX-1];let d3=ThisLvl[gY+1][gX+1];
+    //     //Right two from ghouls current position r1=right,r2=up,r3=down
+    //     let r1=ThisLvl[gY][gX+2];let r2=ThisLvl[gY-1][gX+1];let r3=ThisLvl[gY+1][gX+1];
+    //     //Left two from ghouls current position l1=left,r2=up,r3=down
+    //     let l1=ThisLvl[gY][gX-2];let l2=ThisLvl[gY-1][gX-1];let l3=ThisLvl[gY+1][gX-1];
+    //     if(prio===1)
+    //     {
+    //         switch(Dify)
+    //         {
+    //             //going up
+    //             case (Dify>0):if(u1==1&&u2==1&&u3==1){};
+    //             break;
+    //             //going down
+    //             case (Dify<0):;
+    //             break;
+    //         }
+    //     }
+    //     else if(prio===0)
+    //     {
 
-        }
-    }
+    //     }
+    // }
 }
 //makes the ghoul move
 setInterval(()=>{moveGhouls()},650);
@@ -500,9 +500,5 @@ function reStart()
     lvlScore=10;lvlPrg=lvlScore-1;
     init();
 }
-// every 100 points will grant the player another life
-// let the enemies travel around the grid using only 0s by checking their surrounding every time they move and choose their movement direction based on that and a random number
-// check during every move if the enemies have collided with the player and if they have, remove 1 life from the player and set the player to lose should their remaining lives reach negative
 // setup the winning and losing/dying animations
 // add animations for the characters and point balls
-// restart once the player runs out of lives
