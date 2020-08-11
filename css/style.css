@@ -10,6 +10,7 @@ body
 {
     background-color:#284D48;
     color:#E2E2E2;
+    font-family: Tahoma, Verdana, Segoe, sans-serif;
 }
 #main
 {
@@ -248,7 +249,6 @@ button
     height:60%;
     margin-top:17%;
     margin-left:20%;
-    display: block;
     border:solid;
     border-color:#E6AA68;
     animation-name: pulse_animation;

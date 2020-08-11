@@ -15,7 +15,8 @@ const playr = '<div class="Player" id="p"></div>';
 const ghoul = '<div class="Ghoul"></div>';
 //declaring point pellet
 const pP='<div class="pPoint"></div>';
-
+//audio
+const ding=new Audio('audio/ding.wav');
 /*----- app's state (variables) -----*/
 
 //the current level's number of pellets
@@ -342,6 +343,7 @@ function checkPP()
     cScore+=10;
     //updates the player's score
     curScore.innerHTML=cScore;
+    ding.play();
     if(lvlPrg>0)
     {
         lvlPrg--;
