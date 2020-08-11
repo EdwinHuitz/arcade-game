@@ -1,4 +1,4 @@
-import {Lvl1,Lvl2,Lvl3} from './maps.js';
+import {Lvl1,Lvl2,Lvl3,Lvl4} from './maps.js';
 /*----- constants -----*/
 /*----- cached element references -----*/
 
@@ -15,7 +15,6 @@ const playr = '<div class="Player" id="p"></div>';
 const ghoul = '<div class="Ghoul"></div>';
 //declaring point pellet
 const pP='<div class="pPoint"></div>';
-const pPh='<div class="pPointh"></div>';
 
 /*----- app's state (variables) -----*/
 
@@ -35,11 +34,9 @@ let wall;
 //player's x and y
 let pX=10;
 let pY=10;
-let cP;
 //ghoul's x and y
 let gX=2;
 let gY=2;
-let cG;
 //shows whether the ghoul has stepped on a power pellet
 let gp=0;
 //grid surrounding ghoul
@@ -82,10 +79,13 @@ window.addEventListener('keydown',a=>movePlayer(a));
 function init()
 {
     iY=0;
-    let gStart=Math.floor(Math.random() * Math.floor(3));
-    ThisLvl=(gStart==0)?Lvl1:(gStart==1)?Lvl2:Lvl3;
+    let gStart=Math.floor(Math.random() * Math.floor(8));
+    ThisLvl=(gStart==0||gStart==2)?Lvl1:(gStart==1||gStart==3)?Lvl2:(gStart==4||gStart==6)?Lvl3:Lvl4;
     //use to debug new maps
     //ThisLvl=Lvl2;
+    curLevel.style.visibility="visible";
+    curScore.style.visibility="visible";
+    curHealth.style.visibility="visible";
     curLevel.innerHTML=lvlScore/10;
     curScore.innerHTML=cScore;
     gBoard.innerHTML="";
@@ -165,6 +165,22 @@ function moveUp(x,y,i)
                 P2.innerHTML=i;
             }
         }
+        //checks if the current block and next block both have pellets on them
+        else if (i.toString() == ghoul && P2.innerHTML==pP && gp==1)
+        {
+            P1.innerHTML=pP;
+            P2.innerHTML=ghoul;
+            (i.toString() == ghoul)?gY--:"";
+            gp=1;
+        }
+        //checks if current block had a pellet on it so it can be replaced once the ghoul moves to the next empty block
+        else if (i.toString() == ghoul && gp==1)
+        {
+            P1.innerHTML=pP;
+            P2.innerHTML=ghoul;
+            (i.toString() == ghoul)?gY--:"";
+            gp=0;
+        }
         //moves the ghoul without deleting the pellets
         else if (i.toString() == ghoul && P2.innerHTML==pP)
         {
@@ -173,13 +189,7 @@ function moveUp(x,y,i)
             (i.toString() == ghoul)?gY--:"";
             gp=1;
         }
-        else if (i.toString() == ghoul && gp==1)
-        {
-            P1.innerHTML=pP;
-            P2.innerHTML=ghoul;
-            (i.toString() == ghoul)?gY--:"";
-            gp=0;
-        }
+        //the entity simply moves to the next block if none of the above is true
         else
         {
             P1.innerHTML="";
@@ -205,9 +215,9 @@ function moveDown(x,y,i)
                 P2.innerHTML=i;
             }
         }
-        else if (i.toString() == ghoul && P2.innerHTML==pP)
+        else if (i.toString() == ghoul && P2.innerHTML==pP && gp==1)
         {
-            P1.innerHTML="";
+            P1.innerHTML=pP;
             P2.innerHTML=ghoul;
             (i.toString() == ghoul)?gY++:"";
             gp=1;
@@ -218,6 +228,13 @@ function moveDown(x,y,i)
             P2.innerHTML=ghoul;
             (i.toString() == ghoul)?gY++:"";
             gp=0;
+        }
+        else if (i.toString() == ghoul && P2.innerHTML==pP)
+        {
+            P1.innerHTML="";
+            P2.innerHTML=ghoul;
+            (i.toString() == ghoul)?gY++:"";
+            gp=1;
         }
         else
         {
@@ -242,11 +259,11 @@ function moveLeft(x,y,i)
                 P2.innerHTML=i;
             }
         }
-        else if (i.toString() == ghoul && P2.innerHTML==pP)
+        else if (i.toString() == ghoul && P2.innerHTML==pP && gp==1)
         {
-            P1.innerHTML="";
+            P1.innerHTML=pP;
             P2.innerHTML=ghoul;
-            (i.toString() == ghoul.toString())?gX--:"";
+            (i.toString() == ghoul)?gX--:"";
             gp=1;
         }
         else if (i.toString() == ghoul && gp==1)
@@ -255,6 +272,13 @@ function moveLeft(x,y,i)
             P2.innerHTML=ghoul;
             (i.toString() == ghoul)?gX--:"";
             gp=0;
+        }
+        else if (i.toString() == ghoul && P2.innerHTML==pP)
+        {
+            P1.innerHTML="";
+            P2.innerHTML=ghoul;
+            (i.toString() == ghoul.toString())?gX--:"";
+            gp=1;
         }
         else{
             P1.innerHTML="";
@@ -278,9 +302,9 @@ function moveRight(x,y,i)
                 P2.innerHTML=i;
             }
         }
-        else if (i.toString() == ghoul && P2.innerHTML==pP)
+        else if (i.toString() == ghoul && P2.innerHTML==pP && gp==1)
         {
-            P1.innerHTML="";
+            P1.innerHTML=pP;
             P2.innerHTML=ghoul;
             (i.toString() == ghoul)?gX++:"";
             gp=1;
@@ -291,6 +315,13 @@ function moveRight(x,y,i)
             P2.innerHTML=ghoul;
             (i.toString() == ghoul)?gX++:"";
             gp=0;
+        }
+        else if (i.toString() == ghoul && P2.innerHTML==pP)
+        {
+            P1.innerHTML="";
+            P2.innerHTML=ghoul;
+            (i.toString() == ghoul)?gX++:"";
+            gp=1;
         }
         else{
             P1.innerHTML="";
@@ -347,14 +378,14 @@ function addPP()
             document.getElementById(`c${a}r${b}`).innerHTML=pP;
             iP++;
         }
-    }while(iP<A+1);
+    }while(iP<A+4);
     curLevel.innerHTML=lvlScore/10;
 }
 //determines the player's lives
 function hitPlayer()
 {
     console.log("ouch");
-    (pHealth!=0)?pHealth-=2:reStart();
+    (pHealth>-1)?pHealth-=2:reStart();
     curHealth.style.width=`${pHealth*10}%`;
     curHealth.innerHTML=`<p>Health: ${pHealth*10}%</p>`;
 }
@@ -365,9 +396,6 @@ function hitPlayer()
 //update ghoul co-ordinates
 function updateG()
 {
-    //current ghoul x,y and current player x,y
-    cG=ThisLvl[gY][gX];
-    cP=ThisLvl[pY][pX];
     //grid surrounding ghoul
     L=ThisLvl[gY][gX-1];//x to the left
     R=ThisLvl[gY][gX+1];//x to the right
@@ -388,7 +416,6 @@ function updateG()
 function moveGhouls()
 {
     updateG();
-    (Dify===0 && Difx ===0)?hitPlayer():"";
     //move down if the player is below you and there isn't a wall blocking the path
     if(Prio===1){goUpDown();}
     else if(Prio===0){goLeftRight();}
@@ -398,17 +425,17 @@ function moveGhouls()
         //if player y less than ghoul y and no wall above ghoul, move up. Else if while moving up you can get closer x wise, do it once
         if(Dify<0 && U!=1)
         {
-            setTimeout(() =>{moveUp(gX,gY,ghoul);}, 300);
-            setTimeout(() =>
-            {updateG();
+            setTimeout(() =>{moveUp(gX,gY,ghoul);}, 280);
+            setTimeout(() =>{updateG();
             //checks if a left or right turn is possible one space above or below the ghoul
-            if(Difx<0 && L===1 || Difx>0 && R===1){updateG();cornersY();}}, 600);
+            if(Difx<0 && L===1 || Difx>0 && R===1){updateG();cornersY();}}, 320);
         }
         else if(Dify>0 && D!=1)
         {
-            setTimeout(() =>{moveDown(gX,gY,ghoul);}, 300);
-            setTimeout(() =>{updateG();if(Difx<0 && L===1 || Difx>0 && R===1){cornersY();}}, 600);
+            setTimeout(() =>{moveDown(gX,gY,ghoul);}, 280);
+            setTimeout(() =>{updateG();if(Difx<0 && L===1 || Difx>0 && R===1){cornersY();}}, 320);
         }
+        //checks if there are any corners that need to be crossed
         else if (Dify===0)
         {
             cornersY();
@@ -421,13 +448,13 @@ function moveGhouls()
     {
         if(Difx<0 && L!=1)
         {
-            setTimeout(() =>{moveLeft(gX,gY,ghoul);}, 300);
-            setTimeout(() =>{updateG();if(Difx<0 && L===1 || Difx>0 && R===1){cornersX();}}, 600);
+            setTimeout(() =>{moveLeft(gX,gY,ghoul);}, 280);
+            setTimeout(() =>{updateG();if(Difx<0 && L===1 || Difx>0 && R===1){cornersX();}}, 320);
         }
         else if(Difx>0 && R!=1)
         {
-            setTimeout(() =>{moveRight(gX,gY,ghoul);}, 300);
-            setTimeout(() =>{updateG();if(Difx<0 && L===1 || Difx>0 && R===1){cornersX();}}, 600);
+            setTimeout(() =>{moveRight(gX,gY,ghoul);}, 280);
+            setTimeout(() =>{updateG();if(Difx<0 && L===1 || Difx>0 && R===1){cornersX();}}, 320);
         }
         else if(Dify<0 && U!=1 || Dify>0 && D!=1){goUpDown();}
     }
@@ -435,58 +462,30 @@ function moveGhouls()
     {
         updateG();
         //go up and to the left
-        if(Difx<0 && UL!=1){moveUp(gX,gY,ghoul);setTimeout(() =>{updateG();moveLeft(gX,gY,ghoul);}, 300);}
+        if(Difx<0 && UL!=1){moveUp(gX,gY,ghoul);setTimeout(() =>{updateG();moveLeft(gX,gY,ghoul);}, 280);}
         //go up and to the right
-        else if(Difx>0 && UR!=1){moveUp(gX,gY,ghoul);setTimeout(() =>{updateG();moveRight(gX,gY,ghoul);}, 300);}
+        else if(Difx>0 && UR!=1){moveUp(gX,gY,ghoul);setTimeout(() =>{updateG();moveRight(gX,gY,ghoul);}, 280);}
         //go down and to the left
-        else if(Difx<0 && DL!=1){moveDown(gX,gY,ghoul);setTimeout(() =>{updateG();moveLeft(gX,gY,ghoul);}, 300);}
+        else if(Difx<0 && DL!=1){moveDown(gX,gY,ghoul);setTimeout(() =>{updateG();moveLeft(gX,gY,ghoul);}, 280);}
         //go down and to the right
-        else if(Difx>0 && DR!=1){moveDown(gX,gY,ghoul);setTimeout(() =>{updateG();moveRight(gX,gY,ghoul);}, 300);}
+        else if(Difx>0 && DR!=1){moveDown(gX,gY,ghoul);setTimeout(() =>{updateG();moveRight(gX,gY,ghoul);}, 280);}
     }
     function cornersX()
     {
         updateG();
         //go to the left and up
-        if(Dify<0 && UL!=1){moveLeft(gX,gY,ghoul);setTimeout(() =>{updateG();moveUp(gX,gY,ghoul);}, 300);}
+        if(Dify<0 && UL!=1){moveLeft(gX,gY,ghoul);setTimeout(() =>{updateG();moveUp(gX,gY,ghoul);}, 280);}
         //go to the right and up
-        else if(Dify<0 && UR!=1){moveRight(gX,gY,ghoul);setTimeout(() =>{updateG();moveUp(gX,gY,ghoul);}, 300);}
+        else if(Dify<0 && UR!=1){moveRight(gX,gY,ghoul);setTimeout(() =>{updateG();moveUp(gX,gY,ghoul);}, 280);}
         //go to the left and down
-        else if(Dify>0 && DL!=1){moveLeft(gX,gY,ghoul);setTimeout(() =>{updateG();moveDown(gX,gY,ghoul);}, 300);}
+        else if(Dify>0 && DL!=1){moveLeft(gX,gY,ghoul);setTimeout(() =>{updateG();moveDown(gX,gY,ghoul);}, 280);}
         //go to the right and down
-        else if(Dify>0 && DR!=1){moveRight(gX,gY,ghoul);setTimeout(() =>{updateG();moveDown(gX,gY,ghoul);}, 300);}
+        else if(Dify>0 && DR!=1){moveRight(gX,gY,ghoul);setTimeout(() =>{updateG();moveDown(gX,gY,ghoul);}, 280);}
     }
-    //checks for deadends
-    // function deadEnd()
-    // {
-    //     //Up two from ghouls current position u1=up,u2=left,u3=right
-    //     let u1=ThisLvl[gY-2][gX];let u2=ThisLvl[gY-1][gX-1];let u3=ThisLvl[gY-1][gX+1];
-    //     //Down two from ghouls current position d1=down,d2=left,d3=right
-    //     let d1=ThisLvl[gY+2][gX];let d2=ThisLvl[gY+1][gX-1];let d3=ThisLvl[gY+1][gX+1];
-    //     //Right two from ghouls current position r1=right,r2=up,r3=down
-    //     let r1=ThisLvl[gY][gX+2];let r2=ThisLvl[gY-1][gX+1];let r3=ThisLvl[gY+1][gX+1];
-    //     //Left two from ghouls current position l1=left,r2=up,r3=down
-    //     let l1=ThisLvl[gY][gX-2];let l2=ThisLvl[gY-1][gX-1];let l3=ThisLvl[gY+1][gX-1];
-    //     if(prio===1)
-    //     {
-    //         switch(Dify)
-    //         {
-    //             //going up
-    //             case (Dify>0):if(u1==1&&u2==1&&u3==1){};
-    //             break;
-    //             //going down
-    //             case (Dify<0):;
-    //             break;
-    //         }
-    //     }
-    //     else if(prio===0)
-    //     {
-
-    //     }
-    // }
 }
 //makes the ghoul move
-setInterval(()=>{moveGhouls()},650);
-
+setInterval(()=>{moveGhouls()},550);
+setInterval(() =>{(Dify===0 && Difx ===0)?hitPlayer():"";}, 275);
 //resets all variables and restarts the game
 function reStart()
 {

@@ -6,6 +6,11 @@ html
 }
 *,*::before,*::after{box-sizing: inherit;}
 :root{font-size:62.5%;}
+body
+{
+    background-color:#284D48;
+    color:#E2E2E2;
+}
 #main
 {
     position:absolute;
@@ -27,7 +32,8 @@ html
 {
     position:absolute;
     top:40vh;
-    left:37%;
+    left:45vw;
+    width:20vh;
     height:10vh;
     padding-top:20px;
     font-size:2em;
@@ -36,13 +42,6 @@ html
     justify-content: center;
     align-content: center;
     text-align: center;
-    border:solid;
-    border-color:green;
-}
-#startgame:hover
-{
-    background-color:green;
-    color:white;
 }
 .score
 {
@@ -58,6 +57,10 @@ html
 {
     content:"Current Level: ";
 }
+#curLevel
+{
+    visibility: hidden;
+}
 .score>button
 {
     width:10%;
@@ -68,7 +71,7 @@ html
 }
 .center
 {
-    background-color: silver;
+    background-color: #AAAAAA;
     display:grid;
     grid-template-columns: repeat(21,1fr);
     grid-template-rows: repeat(21,1fr);
@@ -83,20 +86,23 @@ html
     width:23vw;
     height:80vh;
     margin-left:1vw;
-    border:solid;
-    border-color:black;
+    background-color:#6E7271;
     display:grid;
     grid-area:leftD;
     grid-template-columns: 1fr 3fr;
     grid-template-rows: auto;
 }
+.leftSide>h1
+{
+    width:22vw;
+
+}
 .rightSide
 {
+    background-color:#6E7271;
     width:23vw;
     height:80vh;
     margin-right:1vw;
-    border:solid;
-    border-color:black;
     text-align: center;
     display:grid;
     grid-area:rightD;
@@ -155,29 +161,52 @@ html
     ". b b ."
     ;
 }
+button:hover
+{
+    background-color:#E2E2E2;
+}
 button
 {
-    display:flex;
-    justify-self: center;
-    justify-content: center;
-    text-align:center;
-    width:25vw;
+    border-radius: 44%;
+    background-color:#D8D4D5;
+    border-color:#ACAD94;
+    color:black;
 }
 .gUp
 {
     grid-area:a;
+    height:5vh;
+    width:10vw;
+    position:absolute;
+    left:44vw;
+    bottom:8vh;
 }
 .gDown
 {
     grid-area:b;
+    height:5vh;
+    width:10vw;
+    position:absolute;
+    left:44vw;
+    bottom:1vh;
 }
 .gLeft
 {
     grid-area:c;
+    height:5vh;
+    width:10vw;
+    position:absolute;
+    left:34vw;
+    bottom:4vh;
 }
 .gRight
 {
     grid-area:d;
+    height:5vh;
+    width:10vw;
+    position:absolute;
+    left:54vw;
+    bottom:4vh;
 }
 .Wall
 {
@@ -187,49 +216,63 @@ button
 }
 .Path
 {
-    background-color: silver;
+    background-color: #D8D4D5;
     width:100%;
     height:100%;
     border:solid;
+    border-color:#6E7271;
 }
 .Player
 {
-    background-color:green;
+    background-color:#0CCA4A;
+    border:solid;
+    border-color:#73FBD3;
     border-radius: 50%;
     width:100%;
     height:100%;
-    border:solid;
+}
+@keyframes pulse_animation 
+{
+    0% { transform: scale(1); }
+    25% { transform: scale(1.50); }
+    50% { transform: scale(1); }
+    75% { transform: scale(1.50); }
+    100% { transform: scale(1); }
 }
 .pPoint
 {
     position:relative;
-    background-color:yellow;
+    background-color:#CA3C25;
     border-radius: 50%;
     width:60%;
     height:60%;
-    border:solid;
-    margin-top:15%;
+    margin-top:17%;
     margin-left:20%;
     display: block;
-}
-.pPointh
-{
-    display:none;
+    border:solid;
+    border-color:#E6AA68;
+    animation-name: pulse_animation;
+    animation-duration: 5000ms;
+    transform-origin:60% 60%;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
 }
 .Ghoul
 {
     position:relative;
-    background-color:red;
+    background-color:#7D1D3F;
+    border:solid;
+    border-color:#EE7674;
     border-radius: 50%;
     width:100%;
     height:100%;
-    border:solid;
 }
 .health
 {
+    visibility: hidden;
     display:grid;
     grid-area: lives;
-    background-color:red;
+    background-color:#7D1D3F;
     width:100%;
     height:3vh;
     text-align:center;
@@ -247,5 +290,6 @@ button
 }
 #curScore
 {
+    visibility: hidden;
     margin-right: 1vw;
 }
