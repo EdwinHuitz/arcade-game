@@ -8,7 +8,6 @@ const gBoard = document.getElementById("board");
 const curScore=document.getElementById("curScore");
 const curLevel=document.getElementById("curLevel");
 const curHealth=document.getElementById("health");
-const highScore='';
 //declaring the player
 const playr = '<div class="Player" id="p"></div>';
 //declaring the ghoul
@@ -28,6 +27,7 @@ let lvlPrg=lvlScore-1;
 //current score and high score array
 let cScore=0;
 let hScore=[];
+let lScore=[];
 //grid x=iX and y=iX
 let iX=0;
 let iY=0;
@@ -116,8 +116,6 @@ function init()
     });
     addPP();
 }
-//used for debugging to avoid having to click start
-//init();
 
 //
 //Player Movement
@@ -294,7 +292,7 @@ function hitPlayer()
 {
     (pHealth>-1)?pHealth-=2:"";
     (pHealth>0)?hit.play():splat.play();
-    (pHealth<1)?reStart():"";
+    if(pHealth<1){ScoreBoard();reStart();}
     curHealth.style.width=`${pHealth*10}%`;
     curHealth.innerHTML=`<p>Health: ${pHealth*10}%</p>`;
 }
@@ -395,7 +393,38 @@ function moveGhouls()
         else if(Dify>0 && DR!=1){moveIt(gX,gY,ghoul,4);setTimeout(() =>{updateG();moveIt(gX,gY,ghoul,2);}, 280);}
     }
 }
-//makes the ghoul move
+//make an array of the scores and reorganize them numerically with a limit of 10 scores afterwhich it will replace lowest score
+function ScoreBoard()
+{
+    let endScore=cScore;
+    let endLevel=lvlScore/10;
+    //highScore
+    if(hScore.length<10)
+    {
+        hScore.push(endScore);
+        lScore.push(endLevel);
+    }
+    else if(hScore.length==10)
+    {
+        hScore.splice(9,1,endScore);
+        lScore.splice(9,1,endLevel);
+    }
+    //sorts from highest to lowest
+    if(hScore.length>1)
+    {
+        hScore.sort((a,b)=>b-a);
+        lScore.sort((a,b)=>b-a);
+    }
+    console.log(hScore);
+    for (let i = 0; i < hScore.length; i++)
+    {   
+        let tLevel=document.getElementById(`${i+1}l`);
+        let tScores=document.getElementById(`${i+1}s`);
+        tLevel.innerText=lScore[i];
+        tScores.innerText=hScore[i];
+    }
+}
+//makes the ghoul move and detects damage
 setInterval(()=>{moveGhouls()},550);
 setInterval(() =>{(Dify===0 && Difx ===0)?hitPlayer():"";}, 250);
 //resets all variables and restarts the game

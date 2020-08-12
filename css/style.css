@@ -64,11 +64,11 @@ body
 }
 .score>button
 {
-    width:10%;
     padding-left: 1px;
     padding-top: 1px;
     margin-top: 1vh;
     margin-left: 1vw;
+    border-radius: 20%;
 }
 .center
 {
@@ -86,18 +86,73 @@ body
 {
     width:23vw;
     height:80vh;
-    border-radius: 10% 10% 10% 10%;
+    border-radius: 1% 1% 4% 4%;
+    border:solid;
+    border-color:white;
     margin-left:1vw;
     background-color:#6E7271;
     display:grid;
     grid-area:leftD;
-    grid-template-columns: 1fr 3fr;
-    grid-template-rows: auto;
+    grid-template-columns: auto;
+    grid-template-rows: auto auto auto;
+    grid-template-areas:
+    "highscore"
+    "scores"
+    "..."
+    ;
 }
 .leftSide>h1
 {
     width:22vw;
-
+    
+}
+.numScore
+{
+    width:4vw;
+    height:5vh;
+}
+td
+{
+    border-color:#AAAAAA;
+}
+tr
+{
+    border-bottom:solid;
+    border-color:#AAAAAA;
+}
+tr:last-child
+{
+    border-bottom: none;
+}
+.uLevel::before
+{
+    padding-left:10px;
+    content:"Level:";
+}
+.uLevel
+{
+    border-left:solid;
+    border-right:solid;
+    text-align:left;
+    font-size: 1.5em;
+}
+.uScores::before
+{
+    padding-left: 10px;
+    content:"Score:";
+}
+.uScores
+{
+    text-align:left;
+    font-size: 1.5em;
+}
+#Htitle
+{
+    grid-area:highscore;
+}
+.scoreTable
+{
+    grid-area:scores;
 }
 .rightSide
 {
@@ -106,7 +161,9 @@ body
     height:80vh;
     margin-right:1vw;
     text-align: center;
-    border-radius: 4% 4% 10% 10%;
+    border-radius: 1% 1% 4% 4%;
+    border:solid;
+    border-color:white;
     display:grid;
     grid-area:rightD;
     grid-template-columns: auto;
@@ -155,7 +212,7 @@ body
     display:grid;
     grid-area:btnB;
     height:12vh;
-    width:100%;
+    width:100vw;
     grid-template-columns: auto auto auto auto;
     grid-template-rows: auto auto auto auto;
     grid-template-areas:
@@ -166,49 +223,48 @@ body
 }
 button:hover
 {
-    background-color:#E2E2E2;
+    background-color:white;
 }
 button
 {
     border-radius: 44%;
     background-color:#D8D4D5;
-    border-color:#ACAD94;
+    border-color:#6E7271;
+    border-width:0.25vw;
     color:black;
+    width:8vw;
+    font-size: 1.5em;
 }
 .gUp
 {
     grid-area:a;
     height:5vh;
-    width:10vw;
     position:absolute;
-    left:44vw;
+    left:45vw;
     bottom:8vh;
 }
 .gDown
 {
     grid-area:b;
     height:5vh;
-    width:10vw;
     position:absolute;
-    left:44vw;
+    left:45vw;
     bottom:1vh;
 }
 .gLeft
 {
     grid-area:c;
     height:5vh;
-    width:10vw;
     position:absolute;
-    left:34vw;
+    left:35vw;
     bottom:4vh;
 }
 .gRight
 {
     grid-area:d;
     height:5vh;
-    width:10vw;
     position:absolute;
-    left:54vw;
+    left:55vw;
     bottom:4vh;
 }
 .Wall
