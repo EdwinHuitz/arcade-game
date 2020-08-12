@@ -16,7 +16,9 @@ const ghoul = '<div class="Ghoul"></div>';
 //declaring point pellet
 const pP='<div class="pPoint"></div>';
 //audio
-const ding=new Audio('audio/ding.wav');
+const ding=new Audio('audio/Ding.wav');
+const hit=new Audio('audio/Hit.wav');
+const splat=new Audio('audio/Splat.wav');
 /*----- app's state (variables) -----*/
 
 //the current level's number of pellets
@@ -67,15 +69,14 @@ let nxtLvl=false;
 //button clicks
 document.getElementById("startgame").addEventListener('click',init);
 document.getElementById("reStart").addEventListener('click',reStart);
-document.getElementById("mUp").addEventListener('click',()=>{moveUp(pX,pY,playr)});
-document.getElementById("mDown").addEventListener('click',()=>{moveDown(pX,pY,playr)});
-document.getElementById("mLeft").addEventListener('click',()=>{moveLeft(pX,pY,playr)});
-document.getElementById("mRight").addEventListener('click',()=>{moveRight(pX,pY,playr)});
+document.getElementById("mUp").addEventListener('click',()=>{moveIt(pX,pY,playr,1)});
+document.getElementById("mDown").addEventListener('click',()=>{moveIt(pX,pY,playr,2)});
+document.getElementById("mLeft").addEventListener('click',()=>{moveIt(pX,pY,playr,3)});
+document.getElementById("mRight").addEventListener('click',()=>{moveIt(pX,pY,playr,4)});
 //keys pressed
 window.addEventListener('keydown',a=>movePlayer(a));
 
 /*----- functions -----*/
-
 //sets up the gameboard and initializes the game
 function init()
 {
@@ -127,207 +128,113 @@ function movePlayer(a)
 {
     switch(a.key)
     {
-        case "w":moveUp(pX,pY,playr);
+        case "w":moveIt(pX,pY,playr,1);
         //checks whether the player's move is valid
         if(ThisLvl[pY-1][pX]!=1 && pY>0 && nxtLvl===false){pY--;}else{nxtLvl=false}
         break;
-        case "s":moveDown(pX,pY,playr);
+        case "s":moveIt(pX,pY,playr,2);
         if(ThisLvl[pY+1][pX]!=1 && pY<20 && nxtLvl===false){pY++;}else{nxtLvl=false}
         break;
-        case "a":moveLeft(pX,pY,playr);
+        case "a":moveIt(pX,pY,playr,3);
         if(ThisLvl[pY][pX-1]!=1 && pX>0 && nxtLvl===false){pX--;}else{nxtLvl=false}
         break;
-        case "d":moveRight(pX,pY,playr);
+        case "d":moveIt(pX,pY,playr,4);
         if(ThisLvl[pY][pX+1]!=1 && pX<20 && nxtLvl===false){pX++;}else{nxtLvl=false}
         break;
     }
 }
-
-//Directions the object moves x,y,id
-function moveUp(x,y,i)
+function moveIt(x,y,i,d)
 {
-    //gets the player's current position
-    let P1 = document.getElementById(`c${y}r${x}`);
-    //gets the player's next position
-    let P2 = document.getElementById(`c${y-1}r${x}`);
-    //checks if the player can move to this spot
-    if(y>0 && P2.className=="Path")
+    let P1;
+    let P2;
+    switch(d)
     {
-        //checks for pellets
-        if(i.toString() == playr && P2.innerHTML==pP)
+        //up
+        case 1:
+        //gets the object's current position
+        P1 = document.getElementById(`c${y}r${x}`);
+        //gets the object's next position
+        P2 = document.getElementById(`c${y-1}r${x}`);
+        break;
+        //down
+        case 2:
+        P1 = document.getElementById(`c${y}r${x}`);
+        P2 = document.getElementById(`c${y+1}r${x}`);
+        break;
+        //left
+        case 3:
+        P1 = document.getElementById(`c${y}r${x}`);
+        P2 = document.getElementById(`c${y}r${x-1}`);
+        break;
+        //right
+        case 4:
+        P1 = document.getElementById(`c${y}r${x}`);
+        P2 = document.getElementById(`c${y}r${x+1}`);
+        break;
+    }
+    //checks for pellets
+    if(i == playr && P2.innerHTML==pP)
+    {
+        //clears the previous space
+        P1.innerHTML="";
+        checkPP();
+        //checks for level completion
+        if(nxtLvl==false)
         {
-            //clears the previous space
-            P1.innerHTML="";
-            checkPP();
-            //checks for level completion
-            if(nxtLvl==false)
-            {
-                //moves the player
-                P2.innerHTML=i;
-            }
+            //moves the player
+            P2.innerHTML=i;
+        }
+    }
+    //the object simply moves to the next block if none of the above is true
+    else if(i == playr && P2.className=="Path")
+    {
+        P1.innerHTML="";
+        //moves the player
+        P2.innerHTML=i;
+    }
+    if(i == ghoul && P2.className=="Path")
+    {
+        switch(d)
+        {
+            //up
+            case 1:gY--;
+            break;
+            //down
+            case 2:gY++;
+            break;
+            //left
+            case 3:gX--;
+            break;
+            //right
+            case 4:gX++;
+            break;
         }
         //checks if the current block and next block both have pellets on them
-        else if (i.toString() == ghoul && P2.innerHTML==pP && gp==1)
+        if (P2.innerHTML==pP && gp==1)
         {
             P1.innerHTML=pP;
-            P2.innerHTML=ghoul;
-            (i.toString() == ghoul)?gY--:"";
+            P2.innerHTML=i;
             gp=1;
         }
         //checks if current block had a pellet on it so it can be replaced once the ghoul moves to the next empty block
-        else if (i.toString() == ghoul && gp==1)
+        else if (gp==1)
         {
             P1.innerHTML=pP;
-            P2.innerHTML=ghoul;
-            (i.toString() == ghoul)?gY--:"";
+            P2.innerHTML=i;
             gp=0;
         }
         //moves the ghoul without deleting the pellets
-        else if (i.toString() == ghoul && P2.innerHTML==pP)
+        else if (P2.innerHTML==pP)
         {
             P1.innerHTML="";
-            P2.innerHTML=ghoul;
-            (i.toString() == ghoul)?gY--:"";
-            gp=1;
-        }
-        //the entity simply moves to the next block if none of the above is true
-        else
-        {
-            P1.innerHTML="";
-            //moves the player or ghoul
             P2.innerHTML=i;
-            (i.toString() == ghoul)?gY--:"";
-        }
-    }
-}
-function moveDown(x,y,i)
-{
-    let P1 = document.getElementById(`c${y}r${x}`);
-    let P2 = document.getElementById(`c${y+1}r${x}`);
-    if(y<20 && P2.className=="Path")
-    {
-        P1.innerHTML="";
-        if(i.toString() == playr && P2.innerHTML==pP)
-        {
-            P1.innerHTML="";
-            checkPP();
-            if(nxtLvl==false)
-            {
-                P2.innerHTML=i;
-            }
-        }
-        else if (i.toString() == ghoul && P2.innerHTML==pP && gp==1)
-        {
-            P1.innerHTML=pP;
-            P2.innerHTML=ghoul;
-            (i.toString() == ghoul)?gY++:"";
             gp=1;
         }
-        else if (i.toString() == ghoul && gp==1)
-        {
-            P1.innerHTML=pP;
-            P2.innerHTML=ghoul;
-            (i.toString() == ghoul)?gY++:"";
-            gp=0;
-        }
-        else if (i.toString() == ghoul && P2.innerHTML==pP)
-        {
-            P1.innerHTML="";
-            P2.innerHTML=ghoul;
-            (i.toString() == ghoul)?gY++:"";
-            gp=1;
-        }
+        //moves the ghoul if none of the above is true
         else
         {
             P1.innerHTML="";
             P2.innerHTML=i;
-            (i.toString() == ghoul)?gY++:"";
-        }
-    }
-}
-function moveLeft(x,y,i)
-{
-    let P1 = document.getElementById(`c${y}r${x}`);
-    let P2 = document.getElementById(`c${y}r${x-1}`);
-    if(x>0 && P2.className=="Path")
-    {
-        if(i.toString() == playr && P2.innerHTML==pP)
-        {
-            P1.innerHTML="";
-            checkPP();
-            if(nxtLvl==false)
-            {
-                P2.innerHTML=i;
-            }
-        }
-        else if (i.toString() == ghoul && P2.innerHTML==pP && gp==1)
-        {
-            P1.innerHTML=pP;
-            P2.innerHTML=ghoul;
-            (i.toString() == ghoul)?gX--:"";
-            gp=1;
-        }
-        else if (i.toString() == ghoul && gp==1)
-        {
-            P1.innerHTML=pP;
-            P2.innerHTML=ghoul;
-            (i.toString() == ghoul)?gX--:"";
-            gp=0;
-        }
-        else if (i.toString() == ghoul && P2.innerHTML==pP)
-        {
-            P1.innerHTML="";
-            P2.innerHTML=ghoul;
-            (i.toString() == ghoul.toString())?gX--:"";
-            gp=1;
-        }
-        else{
-            P1.innerHTML="";
-            P2.innerHTML=i;
-            (i.toString() == ghoul)?gX--:"";
-        }
-    }
-}
-function moveRight(x,y,i)
-{
-    let P1 = document.getElementById(`c${y}r${x}`);
-    let P2 = document.getElementById(`c${y}r${x+1}`);
-    if(x<20 && P2.className=="Path")
-    {
-        if(i.toString() == playr && P2.innerHTML==pP)
-        {
-            P1.innerHTML="";
-            checkPP();
-            if(nxtLvl==false)
-            {
-                P2.innerHTML=i;
-            }
-        }
-        else if (i.toString() == ghoul && P2.innerHTML==pP && gp==1)
-        {
-            P1.innerHTML=pP;
-            P2.innerHTML=ghoul;
-            (i.toString() == ghoul)?gX++:"";
-            gp=1;
-        }
-        else if (i.toString() == ghoul && gp==1)
-        {
-            P1.innerHTML=pP;
-            P2.innerHTML=ghoul;
-            (i.toString() == ghoul)?gX++:"";
-            gp=0;
-        }
-        else if (i.toString() == ghoul && P2.innerHTML==pP)
-        {
-            P1.innerHTML="";
-            P2.innerHTML=ghoul;
-            (i.toString() == ghoul)?gX++:"";
-            gp=1;
-        }
-        else{
-            P1.innerHTML="";
-            P2.innerHTML=i;
-            (i.toString()== ghoul)?gX++:"";
         }
     }
 }
@@ -353,7 +260,6 @@ function checkPP()
         nxtLvl=true;
         //resets the player to the center of the map
         pX=10;pY=10;
-        //document.getElementById(`c${pY}r${pX}`).innerHTML=playr;
         //increases the number of pellets and resets the level progression
         lvlScore+=10;
         lvlPrg=lvlScore-1;
@@ -386,8 +292,9 @@ function addPP()
 //determines the player's lives
 function hitPlayer()
 {
-    console.log("ouch");
-    (pHealth>-1)?pHealth-=2:reStart();
+    (pHealth>-1)?pHealth-=2:"";
+    (pHealth>0)?hit.play():splat.play();
+    (pHealth<1)?reStart():"";
     curHealth.style.width=`${pHealth*10}%`;
     curHealth.innerHTML=`<p>Health: ${pHealth*10}%</p>`;
 }
@@ -427,14 +334,15 @@ function moveGhouls()
         //if player y less than ghoul y and no wall above ghoul, move up. Else if while moving up you can get closer x wise, do it once
         if(Dify<0 && U!=1)
         {
-            setTimeout(() =>{moveUp(gX,gY,ghoul);}, 280);
+            setTimeout(() =>{moveIt(gX,gY,ghoul,1);}, 280);
             setTimeout(() =>{updateG();
             //checks if a left or right turn is possible one space above or below the ghoul
             if(Difx<0 && L===1 || Difx>0 && R===1){updateG();cornersY();}}, 320);
         }
+        //go down
         else if(Dify>0 && D!=1)
         {
-            setTimeout(() =>{moveDown(gX,gY,ghoul);}, 280);
+            setTimeout(() =>{moveIt(gX,gY,ghoul,2);}, 280);
             setTimeout(() =>{updateG();if(Difx<0 && L===1 || Difx>0 && R===1){cornersY();}}, 320);
         }
         //checks if there are any corners that need to be crossed
@@ -448,14 +356,16 @@ function moveGhouls()
     //checks whether the ai should move left or right and then executes the move
     function goLeftRight()
     {
+        //go left
         if(Difx<0 && L!=1)
         {
-            setTimeout(() =>{moveLeft(gX,gY,ghoul);}, 280);
+            setTimeout(() =>{moveIt(gX,gY,ghoul,3);}, 280);
             setTimeout(() =>{updateG();if(Difx<0 && L===1 || Difx>0 && R===1){cornersX();}}, 320);
         }
+        //go right
         else if(Difx>0 && R!=1)
         {
-            setTimeout(() =>{moveRight(gX,gY,ghoul);}, 280);
+            setTimeout(() =>{moveIt(gX,gY,ghoul,4);}, 280);
             setTimeout(() =>{updateG();if(Difx<0 && L===1 || Difx>0 && R===1){cornersX();}}, 320);
         }
         else if(Dify<0 && U!=1 || Dify>0 && D!=1){goUpDown();}
@@ -464,30 +374,30 @@ function moveGhouls()
     {
         updateG();
         //go up and to the left
-        if(Difx<0 && UL!=1){moveUp(gX,gY,ghoul);setTimeout(() =>{updateG();moveLeft(gX,gY,ghoul);}, 280);}
+        if(Difx<0 && UL!=1){moveIt(gX,gY,ghoul,1);setTimeout(() =>{updateG();moveIt(gX,gY,ghoul,3);}, 280);}
         //go up and to the right
-        else if(Difx>0 && UR!=1){moveUp(gX,gY,ghoul);setTimeout(() =>{updateG();moveRight(gX,gY,ghoul);}, 280);}
+        else if(Difx>0 && UR!=1){moveIt(gX,gY,ghoul,1);setTimeout(() =>{updateG();moveIt(gX,gY,ghoul,4);}, 280);}
         //go down and to the left
-        else if(Difx<0 && DL!=1){moveDown(gX,gY,ghoul);setTimeout(() =>{updateG();moveLeft(gX,gY,ghoul);}, 280);}
+        else if(Difx<0 && DL!=1){moveIt(gX,gY,ghoul,2);setTimeout(() =>{updateG();moveIt(gX,gY,ghoul,3);}, 280);}
         //go down and to the right
-        else if(Difx>0 && DR!=1){moveDown(gX,gY,ghoul);setTimeout(() =>{updateG();moveRight(gX,gY,ghoul);}, 280);}
+        else if(Difx>0 && DR!=1){moveIt(gX,gY,ghoul,2);setTimeout(() =>{updateG();moveIt(gX,gY,ghoul,4);}, 280);}
     }
     function cornersX()
     {
         updateG();
         //go to the left and up
-        if(Dify<0 && UL!=1){moveLeft(gX,gY,ghoul);setTimeout(() =>{updateG();moveUp(gX,gY,ghoul);}, 280);}
+        if(Dify<0 && UL!=1){moveIt(gX,gY,ghoul,3);setTimeout(() =>{updateG();moveIt(gX,gY,ghoul,1);}, 280);}
         //go to the right and up
-        else if(Dify<0 && UR!=1){moveRight(gX,gY,ghoul);setTimeout(() =>{updateG();moveUp(gX,gY,ghoul);}, 280);}
+        else if(Dify<0 && UR!=1){moveIt(gX,gY,ghoul,4);setTimeout(() =>{updateG();moveIt(gX,gY,ghoul,1);}, 280);}
         //go to the left and down
-        else if(Dify>0 && DL!=1){moveLeft(gX,gY,ghoul);setTimeout(() =>{updateG();moveDown(gX,gY,ghoul);}, 280);}
+        else if(Dify>0 && DL!=1){moveIt(gX,gY,ghoul,3);setTimeout(() =>{updateG();moveIt(gX,gY,ghoul,2);}, 280);}
         //go to the right and down
-        else if(Dify>0 && DR!=1){moveRight(gX,gY,ghoul);setTimeout(() =>{updateG();moveDown(gX,gY,ghoul);}, 280);}
+        else if(Dify>0 && DR!=1){moveIt(gX,gY,ghoul,4);setTimeout(() =>{updateG();moveIt(gX,gY,ghoul,2);}, 280);}
     }
 }
 //makes the ghoul move
 setInterval(()=>{moveGhouls()},550);
-setInterval(() =>{(Dify===0 && Difx ===0)?hitPlayer():"";}, 275);
+setInterval(() =>{(Dify===0 && Difx ===0)?hitPlayer():"";}, 250);
 //resets all variables and restarts the game
 function reStart()
 {

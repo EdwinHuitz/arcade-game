@@ -16,3 +16,6 @@ This is a game for which the goal is for the player to try and capture as many "
 * setup the winning and losing/dying animations
 * setup the start button and add animations for the characters and point balls
 * set up a reset function to reset everything once the player runs out of lives or wants to start over
+  
+  ## Credits
+  http://soundbible.com/ - Their great sound effects were used
