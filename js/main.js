@@ -69,10 +69,11 @@ let nxtLvl=false;
 //button clicks
 document.getElementById("startgame").addEventListener('click',init);
 document.getElementById("reStart").addEventListener('click',reStart);
-document.getElementById("mUp").addEventListener('click',()=>{moveIt(pX,pY,playr,1)});
-document.getElementById("mDown").addEventListener('click',()=>{moveIt(pX,pY,playr,2)});
-document.getElementById("mLeft").addEventListener('click',()=>{moveIt(pX,pY,playr,3)});
-document.getElementById("mRight").addEventListener('click',()=>{moveIt(pX,pY,playr,4)});
+//buttons for navigating the player
+document.getElementById("mUp").addEventListener('click',()=>{moveIt(pX,pY,playr,1);if(ThisLvl[pY-1][pX]!=1 && pY>0 && nxtLvl===false){pY--;}else{nxtLvl=false}});
+document.getElementById("mDown").addEventListener('click',()=>{moveIt(pX,pY,playr,2);if(ThisLvl[pY+1][pX]!=1 && pY<20 && nxtLvl===false){pY++;}else{nxtLvl=false}});
+document.getElementById("mLeft").addEventListener('click',()=>{moveIt(pX,pY,playr,3);if(ThisLvl[pY][pX-1]!=1 && pX>0 && nxtLvl===false){pX--;}else{nxtLvl=false}});
+document.getElementById("mRight").addEventListener('click',()=>{moveIt(pX,pY,playr,4);if(ThisLvl[pY][pX+1]!=1 && pX<20 && nxtLvl===false){pX++;}else{nxtLvl=false}});
 //keys pressed
 window.addEventListener('keydown',a=>movePlayer(a));
 
@@ -81,17 +82,21 @@ window.addEventListener('keydown',a=>movePlayer(a));
 function init()
 {
     iY=0;
+    //random number for picking a map
     let gStart=Math.floor(Math.random() * Math.floor(8));
+    //picks the map based on the number above
     ThisLvl=(gStart==0||gStart==2)?Lvl1:(gStart==1||gStart==3)?Lvl2:(gStart==4||gStart==6)?Lvl3:Lvl4;
-    //use to debug new maps
-    //ThisLvl=Lvl2;
+    //makes the current score, current level, and health bar visible
     curLevel.style.visibility="visible";
     curScore.style.visibility="visible";
     curHealth.style.visibility="visible";
+    //calculates the current level
     curLevel.innerHTML=lvlScore/10;
     curScore.innerHTML=cScore;
     gBoard.innerHTML="";
+    //adds value to player's health bar text
     curHealth.innerHTML=`<p>Health: ${pHealth*10}%</p>`;
+    //makes navigation buttons visible
     document.getElementById("btnBar").style.visibility="visible";
     //building lvl
     ThisLvl.forEach((a) => {
@@ -184,7 +189,7 @@ function moveIt(x,y,i,d)
         }
     }
     //the object simply moves to the next block if none of the above is true
-    else if(i == playr && P2.className=="Path")
+    else if(i == playr && P2.className=="Path" && P2.innerHTML!=pP)
     {
         P1.innerHTML="";
         //moves the player
