@@ -22,9 +22,9 @@ const splat=new Audio('audio/Splat.wav');
 
 //the current level's number of pellets
 let lvlScore=10;
-//the current level's progress
-let lvlPrg=lvlScore-1;
-//current score and high score array
+//the player's current progress towards moving on to the next level
+let lvlPrg=(lvlScore/2)-1;
+//current score and high score and level score arrays
 let cScore=0;
 let hScore=[];
 let lScore=[];
@@ -51,10 +51,16 @@ let UL;//upper left
 let UR;//upper right
 let DL;//lower left
 let DR;//lower right
+let UU;//two above
+let DD;//two below
+let LL;//two to the left
+let RR;//two to the right
 //find difference in y
 let Dify;
 //find difference in x
 let Difx;
+//ghoul's speed
+let T=600;
 //player's current number of lives
 let pHealth=10;
 //current priority
@@ -67,7 +73,15 @@ let nxtLvl=false;
 /*----- event listeners -----*/
 
 //button clicks
-document.getElementById("startgame").addEventListener('click',init);
+document.getElementById("startgame").addEventListener('click',()=>{
+    init();
+    //makes the ghoul move and detects damage
+    setInterval(()=>{
+        moveGhouls();
+        if((lvlScore/10)>9){T=380;}
+    },T);
+    setInterval(() =>{(Dify===0 && Difx ===0)?hitPlayer():"";},200);
+});
 document.getElementById("reStart").addEventListener('click',reStart);
 //buttons for navigating the player
 document.getElementById("mUp").addEventListener('click',()=>{moveIt(pX,pY,playr,1);if(ThisLvl[pY-1][pX]!=1 && pY>0 && nxtLvl===false){pY--;}else{nxtLvl=false}});
@@ -96,6 +110,8 @@ function init()
     gBoard.innerHTML="";
     //adds value to player's health bar text
     curHealth.innerHTML=`<p>Health: ${pHealth*10}%</p>`;
+    //expands or contracts the player's health bar
+    curHealth.style.width=`${pHealth*10}%`;
     //makes navigation buttons visible
     document.getElementById("btnBar").style.visibility="visible";
     //building lvl
@@ -147,7 +163,7 @@ function movePlayer(a)
     }
 }
 function moveIt(x,y,i,d)
-{
+{   //current and next blocks
     let P1;
     let P2;
     switch(d)
@@ -191,8 +207,9 @@ function moveIt(x,y,i,d)
     //the object simply moves to the next block if none of the above is true
     else if(i == playr && P2.className=="Path" && P2.innerHTML!=pP)
     {
+        //leaves the previous block blank
         P1.innerHTML="";
-        //moves the player
+        //moves the player to next block
         P2.innerHTML=i;
     }
     if(i == ghoul && P2.className=="Path")
@@ -250,10 +267,11 @@ function moveIt(x,y,i,d)
 function checkPP()
 {
     //adds 10 points to the player's score
-    cScore+=10;
-    //updates the player's score
+    cScore+=5;
+    //updates the player's score and plays a sound
     curScore.innerHTML=cScore;
     ding.play();
+    //checks whether the player has completed the level
     if(lvlPrg>0)
     {
         lvlPrg--;
@@ -265,8 +283,8 @@ function checkPP()
         pX=10;pY=10;
         //increases the number of pellets and resets the level progression
         lvlScore+=10;
-        lvlPrg=lvlScore-1;
-        (pHealth<11)?pHealth+=1:"";
+        lvlPrg=(lvlScore/2)-1;
+        (pHealth<10)?pHealth+=1:"";
         init();
     }
 }
@@ -275,31 +293,34 @@ function addPP()
 {
     let iP=0;
     //current level's amount of pellets
-    let A;
     do
     {
-        //alters the number of pellets if necessary
-        A=(lvlScore>10)?lvlScore+1:lvlScore;
         //pellet's Y and X co-ordinates
-        let a=Math.floor(Math.random() * Math.floor(21));
-        let b=Math.floor(Math.random() * Math.floor(21));
+        let a=Math.floor(Math.random() * Math.floor(20));
+        let b=Math.floor(Math.random() * Math.floor(20));
         let c=ThisLvl[a][b];
         //creates the pellets on spots where neither a wall or the player is present
-        if(c==0){
+        if(c===0)
+        {
             document.getElementById(`c${a}r${b}`).innerHTML=pP;
             iP++;
         }
-    }while(iP<A+4);
+    }while(iP<lvlScore);
     curLevel.innerHTML=lvlScore/10;
 }
 //determines the player's lives
 function hitPlayer()
 {
+    //damages the player if they're not already dead
     (pHealth>-1)?pHealth-=2:"";
+    //plays the proper sound effects for player damage and death
     (pHealth>0)?hit.play():splat.play();
+    //checks if the player died
     if(pHealth<1){ScoreBoard();reStart();}
-    curHealth.style.width=`${pHealth*10}%`;
+    //adds the health percentage text to the health bar
     curHealth.innerHTML=`<p>Health: ${pHealth*10}%</p>`;
+    //expands or contracts the health bar
+    curHealth.style.width=`${pHealth*10}%`;
 }
 //
 //AI
@@ -317,6 +338,10 @@ function updateG()
     UR=ThisLvl[gY-1][gX+1];//upper right
     DL=ThisLvl[gY+1][gX-1];//lower left
     DR=ThisLvl[gY+1][gX+1];//lower right
+    UU=ThisLvl[gY-2][gX];//two above
+    DD=ThisLvl[gY+2][gX];//two below
+    LL=ThisLvl[gY][gX-2];//two to the left
+    RR=ThisLvl[gY][gX+2];//two to the right
     //find difference in y
     Dify=pY-gY;
     //find difference in x
@@ -340,20 +365,50 @@ function moveGhouls()
             setTimeout(() =>{moveIt(gX,gY,ghoul,1);}, 280);
             setTimeout(() =>{updateG();
             //checks if a left or right turn is possible one space above or below the ghoul
-            if(Difx<0 && L===1 || Difx>0 && R===1){updateG();cornersY();}}, 320);
+            (Difx<0 && L===1 || Difx>0 && R===1)?cornersY():"";}, 320);
         }
         //go down
         else if(Dify>0 && D!=1)
         {
             setTimeout(() =>{moveIt(gX,gY,ghoul,2);}, 280);
-            setTimeout(() =>{updateG();if(Difx<0 && L===1 || Difx>0 && R===1){cornersY();}}, 320);
+            setTimeout(() =>{updateG();(Difx<0 && L===1 || Difx>0 && R===1)?cornersY():"";}, 320);
         }
-        //checks if there are any corners that need to be crossed
-        else if (Dify===0)
+        //check for alternate route if stuck
+        else if(Difx===0 && Dify!=0)
         {
-            cornersY();
+            updateG();
+            cornersX();
+            //ghoul above the player with wall under it
+            if(Dify>0 && D===1)
+            {
+                //checks two to the left/right and down one
+                if(L!=1 && LL!=1 && ThisLvl[gY+1][gX+2]!=1)
+                {
+                    setTimeout(() =>{moveIt(gX,gY,ghoul,3);}, 280);
+                    setTimeout(()=>{updateG();cornersX();},320);
+                }
+                else if(R!=1 && RR!=1 && ThisLvl[gY+1][gX-2]!=1)
+                {
+                    setTimeout(() =>{moveIt(gX,gY,ghoul,4);}, 280);
+                    setTimeout(()=>{updateG();cornersX();},320);
+                }
+            }
+            //ghoul below the player with wall above it
+            else if(Dify<0 && U===1)
+            {
+                if(L!=1 && LL!=1 && ThisLvl[gY-1][gX-2]!=1)
+                {
+                    setTimeout(() =>{moveIt(gX,gY,ghoul,3);}, 280);
+                    setTimeout(()=>{updateG();cornersX();},320);
+                }
+                else if(R!=1 && RR!=1 && ThisLvl[gY-1][gX+2]!=1)
+                {
+                    setTimeout(() =>{moveIt(gX,gY,ghoul,4);}, 280);
+                    setTimeout(()=>{updateG();cornersX();},320);
+                }
+            }
         }
-        //checks if a left or right turn can be made
+        //if all else fails, try going left or right
         else if(Difx>0 && L!=1 || Difx<0 && R!=1){goLeftRight();}
     }
     //checks whether the ai should move left or right and then executes the move
@@ -363,39 +418,76 @@ function moveGhouls()
         if(Difx<0 && L!=1)
         {
             setTimeout(() =>{moveIt(gX,gY,ghoul,3);}, 280);
-            setTimeout(() =>{updateG();if(Difx<0 && L===1 || Difx>0 && R===1){cornersX();}}, 320);
+            setTimeout(() =>{updateG();(Difx<0 && L===1 || Difx>0 && R===1)?cornersX():"";}, 320);
         }
         //go right
         else if(Difx>0 && R!=1)
         {
             setTimeout(() =>{moveIt(gX,gY,ghoul,4);}, 280);
-            setTimeout(() =>{updateG();if(Difx<0 && L===1 || Difx>0 && R===1){cornersX();}}, 320);
+            setTimeout(() =>{updateG();(Difx<0 && L===1 || Difx>0 && R===1)?cornersX():"";}, 320);
         }
+        //check for alternate route if stuck
+        else if(Dify===0 && Difx!=0)
+        {
+            updateG();
+            cornersY();
+            //ghoul to the left of player with wall to the right of the ghoul
+            if(Difx>0 && R===1)
+            {
+                //checks two above to the left
+                if(U!=1 && UU!=1 && ThisLvl[gY-2][gX+1]!=1)
+                {
+                    setTimeout(() =>{moveIt(gX,gY,ghoul,1);}, 280);
+                    setTimeout(()=>{updateG();cornersY();},320);
+                }
+                //checks two below to the left
+                else if(D!=1 && DD!=1 && ThisLvl[gY+2][gX+1]!=1)
+                {
+                    setTimeout(() =>{moveIt(gX,gY,ghoul,2);}, 280);
+                    setTimeout(()=>{updateG();cornersY();},320);
+                }
+            }
+            //ghoul to the right of the player with wall to the left of the ghoul
+            else if(Difx<0 && L===1)
+            {
+                if(U!=1 && UU!=1 && ThisLvl[gY-2][gX-1]!=1)
+                {
+                    setTimeout(() =>{moveIt(gX,gY,ghoul,1);}, 280);
+                    setTimeout(()=>{updateG();cornersY();},320);
+                }
+                else if(D!=1 && DD!=1 && ThisLvl[gY+2][gX-1]!=1)
+                {
+                    setTimeout(() =>{moveIt(gX,gY,ghoul,2);}, 280);
+                    setTimeout(()=>{updateG();cornersY();},320);
+                }
+            }
+        }
+        //if all else fails than try going up or down
         else if(Dify<0 && U!=1 || Dify>0 && D!=1){goUpDown();}
     }
     function cornersY()
     {
         updateG();
         //go up and to the left
-        if(Difx<0 && UL!=1){moveIt(gX,gY,ghoul,1);setTimeout(() =>{updateG();moveIt(gX,gY,ghoul,3);}, 280);}
+        if(Difx<0 && U!=1 && UL!=1){moveIt(gX,gY,ghoul,1);setTimeout(() =>{updateG();moveIt(gX,gY,ghoul,3);}, 280);}
         //go up and to the right
-        else if(Difx>0 && UR!=1){moveIt(gX,gY,ghoul,1);setTimeout(() =>{updateG();moveIt(gX,gY,ghoul,4);}, 280);}
+        else if(Difx>0 && U!=1 && UR!=1){moveIt(gX,gY,ghoul,1);setTimeout(() =>{updateG();moveIt(gX,gY,ghoul,4);}, 280);}
         //go down and to the left
-        else if(Difx<0 && DL!=1){moveIt(gX,gY,ghoul,2);setTimeout(() =>{updateG();moveIt(gX,gY,ghoul,3);}, 280);}
+        else if(Difx<0 && D!=1 && DL!=1){moveIt(gX,gY,ghoul,2);setTimeout(() =>{updateG();moveIt(gX,gY,ghoul,3);}, 280);}
         //go down and to the right
-        else if(Difx>0 && DR!=1){moveIt(gX,gY,ghoul,2);setTimeout(() =>{updateG();moveIt(gX,gY,ghoul,4);}, 280);}
+        else if(Difx>0 && D!=1 && DR!=1){moveIt(gX,gY,ghoul,2);setTimeout(() =>{updateG();moveIt(gX,gY,ghoul,4);}, 280);}
     }
     function cornersX()
     {
         updateG();
         //go to the left and up
-        if(Dify<0 && UL!=1){moveIt(gX,gY,ghoul,3);setTimeout(() =>{updateG();moveIt(gX,gY,ghoul,1);}, 280);}
-        //go to the right and up
-        else if(Dify<0 && UR!=1){moveIt(gX,gY,ghoul,4);setTimeout(() =>{updateG();moveIt(gX,gY,ghoul,1);}, 280);}
+        if(Dify<0 && L!=1 && UL!=1){moveIt(gX,gY,ghoul,3);setTimeout(() =>{updateG();moveIt(gX,gY,ghoul,1);}, 280);}
         //go to the left and down
-        else if(Dify>0 && DL!=1){moveIt(gX,gY,ghoul,3);setTimeout(() =>{updateG();moveIt(gX,gY,ghoul,2);}, 280);}
+        else if(Dify>0 && L!=1 && DL!=1){moveIt(gX,gY,ghoul,3);setTimeout(() =>{updateG();moveIt(gX,gY,ghoul,2);}, 280);}
+        //go to the right and up
+        else if(Dify<0 && R!=1 && UR!=1){moveIt(gX,gY,ghoul,4);setTimeout(() =>{updateG();moveIt(gX,gY,ghoul,1);}, 280);}
         //go to the right and down
-        else if(Dify>0 && DR!=1){moveIt(gX,gY,ghoul,4);setTimeout(() =>{updateG();moveIt(gX,gY,ghoul,2);}, 280);}
+        else if(Dify>0 && R!=1 && DR!=1){moveIt(gX,gY,ghoul,4);setTimeout(() =>{updateG();moveIt(gX,gY,ghoul,2);}, 280);}
     }
 }
 //make an array of the scores and reorganize them numerically with a limit of 10 scores afterwhich it will replace lowest score
@@ -420,7 +512,7 @@ function ScoreBoard()
         hScore.sort((a,b)=>b-a);
         lScore.sort((a,b)=>b-a);
     }
-    console.log(hScore);
+    //adds the scores to the scoreboard
     for (let i = 0; i < hScore.length; i++)
     {   
         let tLevel=document.getElementById(`${i+1}l`);
@@ -429,9 +521,7 @@ function ScoreBoard()
         tScores.innerText=hScore[i];
     }
 }
-//makes the ghoul move and detects damage
-setInterval(()=>{moveGhouls()},550);
-setInterval(() =>{(Dify===0 && Difx ===0)?hitPlayer():"";}, 250);
+
 //resets all variables and restarts the game
 function reStart()
 {
@@ -442,8 +532,7 @@ function reStart()
     cScore=0;
     pX=10;pY=10;
     iX=0;iY=0;
-    lvlScore=10;lvlPrg=lvlScore-1;
+    lvlScore=10;lvlPrg=(lvlScore/2)-1;
     init();
 }
 // setup the winning and losing/dying animations
-// add animations for the characters and point balls
