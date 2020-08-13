@@ -1,5 +1,8 @@
+/*----- imports -----*/
+
 import {Lvl1,Lvl2,Lvl3,Lvl4} from './maps.js';
-/*----- constants -----*/
+import {scores,gridXY} from './variables.js';
+
 /*----- cached element references -----*/
 
 //declaring the gameboard
@@ -8,60 +11,31 @@ const gBoard = document.getElementById("board");
 const curScore=document.getElementById("curScore");
 const curLevel=document.getElementById("curLevel");
 const curHealth=document.getElementById("health");
+//declaring the restart button
+const reSetbtn=document.getElementById("reStart");
 //declaring the player
 const playr = '<div class="Player" id="p"></div>';
 //declaring the ghoul
-const ghoul = '<div class="Ghoul"></div>';
+const ghoul = `
+<div class="Ghoul">
+</div>`;
 //declaring point pellet
 const pP='<div class="pPoint"></div>';
 //audio
 const ding=new Audio('audio/Ding.wav');
 const hit=new Audio('audio/Hit.wav');
 const splat=new Audio('audio/Splat.wav');
+
 /*----- app's state (variables) -----*/
 
-//the current level's number of pellets
-let lvlScore=10;
-//the player's current progress towards moving on to the next level
-let lvlPrg=(lvlScore/2)-1;
-//current score and high score and level score arrays
-let cScore=0;
-let hScore=[];
-let lScore=[];
-//grid x=iX and y=iX
-let iX=0;
-let iY=0;
 //declares the paths and walls with custom id tag of (col)(row)
 let path;
 let wall;
-//player's x and y
-let pX=10;
-let pY=10;
-//ghoul's x and y
-let gX=2;
-let gY=2;
 //shows whether the ghoul has stepped on a power pellet
 let gp=0;
-//grid surrounding ghoul
-let L;//x to the left
-let R;//x to the right
-let U;//y above
-let D;//y below
-let UL;//upper left
-let UR;//upper right
-let DL;//lower left
-let DR;//lower right
-let UU;//two above
-let DD;//two below
-let LL;//two to the left
-let RR;//two to the right
-//find difference in y
-let Dify;
-//find difference in x
-let Difx;
 //ghoul's speed
 let T=600;
-//player's current number of lives
+//player's current health
 let pHealth=10;
 //current priority
 let Prio;
@@ -78,16 +52,16 @@ document.getElementById("startgame").addEventListener('click',()=>{
     //makes the ghoul move and detects damage
     setInterval(()=>{
         moveGhouls();
-        if((lvlScore/10)>9){T=380;}
+        if((scores.lvlScore/10)>9){T=380;}
     },T);
-    setInterval(() =>{(Dify===0 && Difx ===0)?hitPlayer():"";},200);
+    setInterval(() =>{(gridXY.Dify===0 && gridXY.Difx ===0)?hitPlayer():"";},200);
 });
 document.getElementById("reStart").addEventListener('click',reStart);
 //buttons for navigating the player
-document.getElementById("mUp").addEventListener('click',()=>{moveIt(pX,pY,playr,1);if(ThisLvl[pY-1][pX]!=1 && pY>0 && nxtLvl===false){pY--;}else{nxtLvl=false}});
-document.getElementById("mDown").addEventListener('click',()=>{moveIt(pX,pY,playr,2);if(ThisLvl[pY+1][pX]!=1 && pY<20 && nxtLvl===false){pY++;}else{nxtLvl=false}});
-document.getElementById("mLeft").addEventListener('click',()=>{moveIt(pX,pY,playr,3);if(ThisLvl[pY][pX-1]!=1 && pX>0 && nxtLvl===false){pX--;}else{nxtLvl=false}});
-document.getElementById("mRight").addEventListener('click',()=>{moveIt(pX,pY,playr,4);if(ThisLvl[pY][pX+1]!=1 && pX<20 && nxtLvl===false){pX++;}else{nxtLvl=false}});
+document.getElementById("mUp").addEventListener('click',()=>{moveIt(gridXY.pX,gridXY.pY,playr,1);if(ThisLvl[gridXY.pY-1][gridXY.pX]!=1 && gridXY.pY>0 && nxtLvl===false){gridXY.pY--;}else{nxtLvl=false}});
+document.getElementById("mDown").addEventListener('click',()=>{moveIt(gridXY.pX,gridXY.pY,playr,2);if(ThisLvl[gridXY.pY+1][gridXY.pX]!=1 && gridXY.pY<20 && nxtLvl===false){gridXY.pY++;}else{nxtLvl=false}});
+document.getElementById("mLeft").addEventListener('click',()=>{moveIt(gridXY.pX,gridXY.pY,playr,3);if(ThisLvl[gridXY.pY][gridXY.pX-1]!=1 && gridXY.pX>0 && nxtLvl===false){gridXY.pX--;}else{nxtLvl=false}});
+document.getElementById("mRight").addEventListener('click',()=>{moveIt(gridXY.pX,gridXY.pY,playr,4);if(ThisLvl[gridXY.pY][gridXY.pX+1]!=1 && gridXY.pX<20 && nxtLvl===false){gridXY.pX++;}else{nxtLvl=false}});
 //keys pressed
 window.addEventListener('keydown',a=>movePlayer(a));
 
@@ -95,7 +69,7 @@ window.addEventListener('keydown',a=>movePlayer(a));
 //sets up the gameboard and initializes the game
 function init()
 {
-    iY=0;
+    gridXY.iY=0;
     //random number for picking a map
     let gStart=Math.floor(Math.random() * Math.floor(8));
     //picks the map based on the number above
@@ -104,9 +78,10 @@ function init()
     curLevel.style.visibility="visible";
     curScore.style.visibility="visible";
     curHealth.style.visibility="visible";
+    reSetbtn.style.visibility="visible";
     //calculates the current level
-    curLevel.innerHTML=lvlScore/10;
-    curScore.innerHTML=cScore;
+    curLevel.innerHTML=scores.lvlScore/10;
+    curScore.innerHTML=scores.cScore;
     gBoard.innerHTML="";
     //adds value to player's health bar text
     curHealth.innerHTML=`<p>Health: ${pHealth*10}%</p>`;
@@ -117,23 +92,23 @@ function init()
     //building lvl
     ThisLvl.forEach((a) => {
     do{
-        wall = `<div class="Wall"id="c${iY}r${iX}"></div>`;
-        path = `<div class="Path"id="c${iY}r${iX}"></div>`;
-        switch(a[iX])
+        wall = `<div class="Wall"id="c${gridXY.iY}r${gridXY.iX}"></div>`;
+        path = `<div class="Path"id="c${gridXY.iY}r${gridXY.iX}"></div>`;
+        switch(a[gridXY.iX])
         {
             //adds movable path
-            case 0:gBoard.innerHTML+=path;iX++;
+            case 0:gBoard.innerHTML+=path;gridXY.iX++;
             break;
             //adds unpassable walls
-            case 1:gBoard.innerHTML+=wall;iX++;
+            case 1:gBoard.innerHTML+=wall;gridXY.iX++;
             break;
             //adds the player
-            case 2:gBoard.innerHTML+=path;document.getElementById(`c${iY}r${iX}`).innerHTML+=playr;iX++;
+            case 2:gBoard.innerHTML+=path;document.getElementById(`c${gridXY.iY}r${gridXY.iX}`).innerHTML+=playr;gridXY.iX++;
             break;
         }
-    }while(iX<21);
-    iX=0;
-    iY++;
+    }while(gridXY.iX<21);
+    gridXY.iX=0;
+    gridXY.iY++;
     });
     addPP();
 }
@@ -145,20 +120,20 @@ function init()
 //moves the player when keys are used
 function movePlayer(a)
 {
-    switch(a.key)
+    switch(a.key.toLowerCase())
     {
-        case "w":moveIt(pX,pY,playr,1);
+        case "w":moveIt(gridXY.pX,gridXY.pY,playr,1);
         //checks whether the player's move is valid
-        if(ThisLvl[pY-1][pX]!=1 && pY>0 && nxtLvl===false){pY--;}else{nxtLvl=false}
+        if(ThisLvl[gridXY.pY-1][gridXY.pX]!=1 && gridXY.pY>0 && nxtLvl===false){gridXY.pY--;}else{nxtLvl=false}
         break;
-        case "s":moveIt(pX,pY,playr,2);
-        if(ThisLvl[pY+1][pX]!=1 && pY<20 && nxtLvl===false){pY++;}else{nxtLvl=false}
+        case "s":moveIt(gridXY.pX,gridXY.pY,playr,2);
+        if(ThisLvl[gridXY.pY+1][gridXY.pX]!=1 && gridXY.pY<20 && nxtLvl===false){gridXY.pY++;}else{nxtLvl=false}
         break;
-        case "a":moveIt(pX,pY,playr,3);
-        if(ThisLvl[pY][pX-1]!=1 && pX>0 && nxtLvl===false){pX--;}else{nxtLvl=false}
+        case "a":moveIt(gridXY.pX,gridXY.pY,playr,3);
+        if(ThisLvl[gridXY.pY][gridXY.pX-1]!=1 && gridXY.pX>0 && nxtLvl===false){gridXY.pX--;}else{nxtLvl=false}
         break;
-        case "d":moveIt(pX,pY,playr,4);
-        if(ThisLvl[pY][pX+1]!=1 && pX<20 && nxtLvl===false){pX++;}else{nxtLvl=false}
+        case "d":moveIt(gridXY.pX,gridXY.pY,playr,4);
+        if(ThisLvl[gridXY.pY][gridXY.pX+1]!=1 && gridXY.pX<20 && nxtLvl===false){gridXY.pX++;}else{nxtLvl=false}
         break;
     }
 }
@@ -217,16 +192,16 @@ function moveIt(x,y,i,d)
         switch(d)
         {
             //up
-            case 1:gY--;
+            case 1:gridXY.gY--;
             break;
             //down
-            case 2:gY++;
+            case 2:gridXY.gY++;
             break;
             //left
-            case 3:gX--;
+            case 3:gridXY.gX--;
             break;
             //right
-            case 4:gX++;
+            case 4:gridXY.gX++;
             break;
         }
         //checks if the current block and next block both have pellets on them
@@ -267,23 +242,23 @@ function moveIt(x,y,i,d)
 function checkPP()
 {
     //adds 10 points to the player's score
-    cScore+=5;
+    scores.cScore+=5;
     //updates the player's score and plays a sound
-    curScore.innerHTML=cScore;
+    curScore.innerHTML=scores.cScore;
     ding.play();
     //checks whether the player has completed the level
-    if(lvlPrg>0)
+    if(scores.lvlPrg>0)
     {
-        lvlPrg--;
+        scores.lvlPrg--;
     }
     else
     {
         nxtLvl=true;
         //resets the player to the center of the map
-        pX=10;pY=10;
+        gridXY.pX=10;gridXY.pY=10;
         //increases the number of pellets and resets the level progression
-        lvlScore+=10;
-        lvlPrg=(lvlScore/2)-1;
+        scores.lvlScore+=10;
+        scores.lvlPrg=(scores.lvlScore/2)-1;
         (pHealth<10)?pHealth+=1:"";
         init();
     }
@@ -305,14 +280,14 @@ function addPP()
             document.getElementById(`c${a}r${b}`).innerHTML=pP;
             iP++;
         }
-    }while(iP<lvlScore);
-    curLevel.innerHTML=lvlScore/10;
+    }while(iP<scores.lvlScore);
+    curLevel.innerHTML=scores.lvlScore/10;
 }
 //determines the player's lives
 function hitPlayer()
 {
     //damages the player if they're not already dead
-    (pHealth>-1)?pHealth-=2:"";
+    (pHealth>-1)?pHealth-=1:"";
     //plays the proper sound effects for player damage and death
     (pHealth>0)?hit.play():splat.play();
     //checks if the player died
@@ -330,24 +305,24 @@ function hitPlayer()
 function updateG()
 {
     //grid surrounding ghoul
-    L=ThisLvl[gY][gX-1];//x to the left
-    R=ThisLvl[gY][gX+1];//x to the right
-    U=ThisLvl[gY-1][gX];//y above
-    D=ThisLvl[gY+1][gX];//y below
-    UL=ThisLvl[gY-1][gX-1];//upper left
-    UR=ThisLvl[gY-1][gX+1];//upper right
-    DL=ThisLvl[gY+1][gX-1];//lower left
-    DR=ThisLvl[gY+1][gX+1];//lower right
-    UU=ThisLvl[gY-2][gX];//two above
-    DD=ThisLvl[gY+2][gX];//two below
-    LL=ThisLvl[gY][gX-2];//two to the left
-    RR=ThisLvl[gY][gX+2];//two to the right
+    gridXY.L=ThisLvl[gridXY.gY][gridXY.gX-1];//x to the left
+    gridXY.R=ThisLvl[gridXY.gY][gridXY.gX+1];//x to the right
+    gridXY.U=ThisLvl[gridXY.gY-1][gridXY.gX];//y above
+    gridXY.D=ThisLvl[gridXY.gY+1][gridXY.gX];//y below
+    gridXY.UL=ThisLvl[gridXY.gY-1][gridXY.gX-1];//upper left
+    gridXY.UR=ThisLvl[gridXY.gY-1][gridXY.gX+1];//upper right
+    gridXY.DL=ThisLvl[gridXY.gY+1][gridXY.gX-1];//lower left
+    gridXY.DR=ThisLvl[gridXY.gY+1][gridXY.gX+1];//lower right
+    gridXY.UU=ThisLvl[gridXY.gY-2][gridXY.gX];//two above
+    gridXY.DD=ThisLvl[gridXY.gY+2][gridXY.gX];//two below
+    gridXY.LL=ThisLvl[gridXY.gY][gridXY.gX-2];//two to the left
+    gridXY.RR=ThisLvl[gridXY.gY][gridXY.gX+2];//two to the right
     //find difference in y
-    Dify=pY-gY;
+    gridXY.Dify=gridXY.pY-gridXY.gY;
     //find difference in x
-    Difx=pX-gX;
+    gridXY.Difx=gridXY.pX-gridXY.gX;
     //y distance has higher priority followed by x
-    Prio=(Dify!=0)?1:0;
+    Prio=(gridXY.Dify!=0)?1:0;
 }
 //movement logic for the ghoul
 function moveGhouls()
@@ -360,165 +335,165 @@ function moveGhouls()
     function goUpDown()
     {
         //if player y less than ghoul y and no wall above ghoul, move up. Else if while moving up you can get closer x wise, do it once
-        if(Dify<0 && U!=1)
+        if(gridXY.Dify<0 && gridXY.U!=1)
         {
-            setTimeout(() =>{moveIt(gX,gY,ghoul,1);}, 280);
+            setTimeout(() =>{moveIt(gridXY.gX,gridXY.gY,ghoul,1);}, 280);
             setTimeout(() =>{updateG();
             //checks if a left or right turn is possible one space above or below the ghoul
-            (Difx<0 && L===1 || Difx>0 && R===1)?cornersY():"";}, 320);
+            (gridXY.Difx<0 && gridXY.L===1 || gridXY.Difx>0 && gridXY.R===1)?cornersY():"";}, 320);
         }
         //go down
-        else if(Dify>0 && D!=1)
+        else if(gridXY.Dify>0 && gridXY.D!=1)
         {
-            setTimeout(() =>{moveIt(gX,gY,ghoul,2);}, 280);
-            setTimeout(() =>{updateG();(Difx<0 && L===1 || Difx>0 && R===1)?cornersY():"";}, 320);
+            setTimeout(() =>{moveIt(gridXY.gX,gridXY.gY,ghoul,2);}, 280);
+            setTimeout(() =>{updateG();(gridXY.Difx<0 && gridXY.L===1 || gridXY.Difx>0 && gridXY.R===1)?cornersY():"";}, 320);
         }
         //check for alternate route if stuck
-        else if(Difx===0 && Dify!=0)
+        else if(gridXY.Difx===0 && gridXY.Dify!=0)
         {
             updateG();
             cornersX();
             //ghoul above the player with wall under it
-            if(Dify>0 && D===1)
+            if(gridXY.Dify>0 && gridXY.D===1)
             {
                 //checks two to the left/right and down one
-                if(L!=1 && LL!=1 && ThisLvl[gY+1][gX+2]!=1)
+                if(gridXY.L!=1 && gridXY.LL!=1 && ThisLvl[gridXY.gY+1][gridXY.gX+2]!=1)
                 {
-                    setTimeout(() =>{moveIt(gX,gY,ghoul,3);}, 280);
+                    setTimeout(() =>{moveIt(gridXY.gX,gridXY.gY,ghoul,3);}, 280);
                     setTimeout(()=>{updateG();cornersX();},320);
                 }
-                else if(R!=1 && RR!=1 && ThisLvl[gY+1][gX-2]!=1)
+                else if(gridXY.R!=1 && gridXY.RR!=1 && ThisLvl[gridXY.gY+1][gridXY.gX-2]!=1)
                 {
-                    setTimeout(() =>{moveIt(gX,gY,ghoul,4);}, 280);
+                    setTimeout(() =>{moveIt(gridXY.gX,gridXY.gY,ghoul,4);}, 280);
                     setTimeout(()=>{updateG();cornersX();},320);
                 }
             }
             //ghoul below the player with wall above it
-            else if(Dify<0 && U===1)
+            else if(gridXY.Dify<0 && gridXY.U===1)
             {
-                if(L!=1 && LL!=1 && ThisLvl[gY-1][gX-2]!=1)
+                if(gridXY.L!=1 && gridXY.LL!=1 && ThisLvl[gridXY.gY-1][gridXY.gX-2]!=1)
                 {
-                    setTimeout(() =>{moveIt(gX,gY,ghoul,3);}, 280);
+                    setTimeout(() =>{moveIt(gridXY.gX,gridXY.gY,ghoul,3);}, 280);
                     setTimeout(()=>{updateG();cornersX();},320);
                 }
-                else if(R!=1 && RR!=1 && ThisLvl[gY-1][gX+2]!=1)
+                else if(gridXY.R!=1 && gridXY.RR!=1 && ThisLvl[gridXY.gY-1][gridXY.gX+2]!=1)
                 {
-                    setTimeout(() =>{moveIt(gX,gY,ghoul,4);}, 280);
+                    setTimeout(() =>{moveIt(gridXY.gX,gridXY.gY,ghoul,4);}, 280);
                     setTimeout(()=>{updateG();cornersX();},320);
                 }
             }
         }
         //if all else fails, try going left or right
-        else if(Difx>0 && L!=1 || Difx<0 && R!=1){goLeftRight();}
+        else if(gridXY.Difx>0 && gridXY.L!=1 || gridXY.Difx<0 && gridXY.R!=1){goLeftRight();}
     }
     //checks whether the ai should move left or right and then executes the move
     function goLeftRight()
     {
         //go left
-        if(Difx<0 && L!=1)
+        if(gridXY.Difx<0 && gridXY.L!=1)
         {
-            setTimeout(() =>{moveIt(gX,gY,ghoul,3);}, 280);
-            setTimeout(() =>{updateG();(Difx<0 && L===1 || Difx>0 && R===1)?cornersX():"";}, 320);
+            setTimeout(() =>{moveIt(gridXY.gX,gridXY.gY,ghoul,3);}, 280);
+            setTimeout(() =>{updateG();(gridXY.Difx<0 && gridXY.L===1 || gridXY.Difx>0 && gridXY.R===1)?cornersX():"";}, 320);
         }
         //go right
-        else if(Difx>0 && R!=1)
+        else if(gridXY.Difx>0 && gridXY.R!=1)
         {
-            setTimeout(() =>{moveIt(gX,gY,ghoul,4);}, 280);
-            setTimeout(() =>{updateG();(Difx<0 && L===1 || Difx>0 && R===1)?cornersX():"";}, 320);
+            setTimeout(() =>{moveIt(gridXY.gX,gridXY.gY,ghoul,4);}, 280);
+            setTimeout(() =>{updateG();(gridXY.Difx<0 && gridXY.L===1 || gridXY.Difx>0 && gridXY.R===1)?cornersX():"";}, 320);
         }
         //check for alternate route if stuck
-        else if(Dify===0 && Difx!=0)
+        else if(gridXY.Dify===0 && gridXY.Difx!=0)
         {
             updateG();
             cornersY();
             //ghoul to the left of player with wall to the right of the ghoul
-            if(Difx>0 && R===1)
+            if(gridXY.Difx>0 && gridXY.R===1)
             {
                 //checks two above to the left
-                if(U!=1 && UU!=1 && ThisLvl[gY-2][gX+1]!=1)
+                if(gridXY.U!=1 && gridXY.UU!=1 && ThisLvl[gridXY.gY-2][gridXY.gX+1]!=1)
                 {
-                    setTimeout(() =>{moveIt(gX,gY,ghoul,1);}, 280);
+                    setTimeout(() =>{moveIt(gridXY.gX,gridXY.gY,ghoul,1);}, 280);
                     setTimeout(()=>{updateG();cornersY();},320);
                 }
                 //checks two below to the left
-                else if(D!=1 && DD!=1 && ThisLvl[gY+2][gX+1]!=1)
+                else if(gridXY.D!=1 && gridXY.DD!=1 && ThisLvl[gridXY.gY+2][gridXY.gX+1]!=1)
                 {
-                    setTimeout(() =>{moveIt(gX,gY,ghoul,2);}, 280);
+                    setTimeout(() =>{moveIt(gridXY.gX,gridXY.gY,ghoul,2);}, 280);
                     setTimeout(()=>{updateG();cornersY();},320);
                 }
             }
             //ghoul to the right of the player with wall to the left of the ghoul
-            else if(Difx<0 && L===1)
+            else if(gridXY.Difx<0 && gridXY.L===1)
             {
-                if(U!=1 && UU!=1 && ThisLvl[gY-2][gX-1]!=1)
+                if(gridXY.U!=1 && gridXY.UU!=1 && ThisLvl[gridXY.gY-2][gridXY.gX-1]!=1)
                 {
-                    setTimeout(() =>{moveIt(gX,gY,ghoul,1);}, 280);
+                    setTimeout(() =>{moveIt(gridXY.gX,gridXY.gY,ghoul,1);}, 280);
                     setTimeout(()=>{updateG();cornersY();},320);
                 }
-                else if(D!=1 && DD!=1 && ThisLvl[gY+2][gX-1]!=1)
+                else if(gridXY.D!=1 && gridXY.DD!=1 && ThisLvl[gridXY.gY+2][gridXY.gX-1]!=1)
                 {
-                    setTimeout(() =>{moveIt(gX,gY,ghoul,2);}, 280);
+                    setTimeout(() =>{moveIt(gridXY.gX,gridXY.gY,ghoul,2);}, 280);
                     setTimeout(()=>{updateG();cornersY();},320);
                 }
             }
         }
         //if all else fails than try going up or down
-        else if(Dify<0 && U!=1 || Dify>0 && D!=1){goUpDown();}
+        else if(gridXY.Dify<0 && gridXY.U!=1 || gridXY.Dify>0 && gridXY.D!=1){goUpDown();}
     }
     function cornersY()
     {
         updateG();
         //go up and to the left
-        if(Difx<0 && U!=1 && UL!=1){moveIt(gX,gY,ghoul,1);setTimeout(() =>{updateG();moveIt(gX,gY,ghoul,3);}, 280);}
+        if(gridXY.Difx<0 && gridXY.U!=1 && gridXY.UL!=1){moveIt(gridXY.gX,gridXY.gY,ghoul,1);setTimeout(() =>{updateG();moveIt(gridXY.gX,gridXY.gY,ghoul,3);}, 280);}
         //go up and to the right
-        else if(Difx>0 && U!=1 && UR!=1){moveIt(gX,gY,ghoul,1);setTimeout(() =>{updateG();moveIt(gX,gY,ghoul,4);}, 280);}
+        else if(gridXY.Difx>0 && gridXY.U!=1 && gridXY.UR!=1){moveIt(gridXY.gX,gridXY.gY,ghoul,1);setTimeout(() =>{updateG();moveIt(gridXY.gX,gridXY.gY,ghoul,4);}, 280);}
         //go down and to the left
-        else if(Difx<0 && D!=1 && DL!=1){moveIt(gX,gY,ghoul,2);setTimeout(() =>{updateG();moveIt(gX,gY,ghoul,3);}, 280);}
+        else if(gridXY.Difx<0 && gridXY.D!=1 && gridXY.DL!=1){moveIt(gridXY.gX,gridXY.gY,ghoul,2);setTimeout(() =>{updateG();moveIt(gridXY.gX,gridXY.gY,ghoul,3);}, 280);}
         //go down and to the right
-        else if(Difx>0 && D!=1 && DR!=1){moveIt(gX,gY,ghoul,2);setTimeout(() =>{updateG();moveIt(gX,gY,ghoul,4);}, 280);}
+        else if(gridXY.Difx>0 && gridXY.D!=1 && gridXY.DR!=1){moveIt(gridXY.gX,gridXY.gY,ghoul,2);setTimeout(() =>{updateG();moveIt(gridXY.gX,gridXY.gY,ghoul,4);}, 280);}
     }
     function cornersX()
     {
         updateG();
         //go to the left and up
-        if(Dify<0 && L!=1 && UL!=1){moveIt(gX,gY,ghoul,3);setTimeout(() =>{updateG();moveIt(gX,gY,ghoul,1);}, 280);}
+        if(gridXY.Dify<0 && gridXY.L!=1 && gridXY.UL!=1){moveIt(gridXY.gX,gridXY.gY,ghoul,3);setTimeout(() =>{updateG();moveIt(gridXY.gX,gridXY.gY,ghoul,1);}, 280);}
         //go to the left and down
-        else if(Dify>0 && L!=1 && DL!=1){moveIt(gX,gY,ghoul,3);setTimeout(() =>{updateG();moveIt(gX,gY,ghoul,2);}, 280);}
+        else if(gridXY.Dify>0 && gridXY.L!=1 && gridXY.DL!=1){moveIt(gridXY.gX,gridXY.gY,ghoul,3);setTimeout(() =>{updateG();moveIt(gridXY.gX,gridXY.gY,ghoul,2);}, 280);}
         //go to the right and up
-        else if(Dify<0 && R!=1 && UR!=1){moveIt(gX,gY,ghoul,4);setTimeout(() =>{updateG();moveIt(gX,gY,ghoul,1);}, 280);}
+        else if(gridXY.Dify<0 && gridXY.R!=1 && gridXY.UR!=1){moveIt(gridXY.gX,gridXY.gY,ghoul,4);setTimeout(() =>{updateG();moveIt(gridXY.gX,gridXY.gY,ghoul,1);}, 280);}
         //go to the right and down
-        else if(Dify>0 && R!=1 && DR!=1){moveIt(gX,gY,ghoul,4);setTimeout(() =>{updateG();moveIt(gX,gY,ghoul,2);}, 280);}
+        else if(gridXY.Dify>0 && gridXY.R!=1 && gridXY.DR!=1){moveIt(gridXY.gX,gridXY.gY,ghoul,4);setTimeout(() =>{updateG();moveIt(gridXY.gX,gridXY.gY,ghoul,2);}, 280);}
     }
 }
 //make an array of the scores and reorganize them numerically with a limit of 10 scores afterwhich it will replace lowest score
 function ScoreBoard()
 {
-    let endScore=cScore;
-    let endLevel=lvlScore/10;
+    let endScore=scores.cScore;
+    let endLevel=scores.lvlScore/10;
     //highScore
-    if(hScore.length<10)
+    if(scores.hScore.length<10)
     {
-        hScore.push(endScore);
-        lScore.push(endLevel);
+        scores.hScore.push(endScore);
+        scores.lScore.push(endLevel);
     }
-    else if(hScore.length==10)
+    else if(scores.hScore.length==10)
     {
-        hScore.splice(9,1,endScore);
-        lScore.splice(9,1,endLevel);
+        scores.hScore.splice(9,1,endScore);
+        scores.lScore.splice(9,1,endLevel);
     }
     //sorts from highest to lowest
-    if(hScore.length>1)
+    if(scores.hScore.length>1)
     {
-        hScore.sort((a,b)=>b-a);
-        lScore.sort((a,b)=>b-a);
+        scores.hScore.sort((a,b)=>b-a);
+        scores.lScore.sort((a,b)=>b-a);
     }
     //adds the scores to the scoreboard
-    for (let i = 0; i < hScore.length; i++)
+    for (let i = 0; i < scores.hScore.length; i++)
     {   
         let tLevel=document.getElementById(`${i+1}l`);
         let tScores=document.getElementById(`${i+1}s`);
-        tLevel.innerText=lScore[i];
-        tScores.innerText=hScore[i];
+        tLevel.innerText=scores.lScore[i];
+        tScores.innerText=scores.hScore[i];
     }
 }
 
@@ -526,13 +501,13 @@ function ScoreBoard()
 function reStart()
 {
     pHealth=10;
-    gX=2;gY=2;
+    gridXY.gX=2;gridXY.gY=2;
     updateG();
     gBoard.innerHTML="";
-    cScore=0;
-    pX=10;pY=10;
-    iX=0;iY=0;
-    lvlScore=10;lvlPrg=(lvlScore/2)-1;
+    scores.cScore=0;
+    gridXY.pX=10;gridXY.pY=10;
+    gridXY.iX=0;gridXY.iY=0;
+    scores.lvlScore=10;scores.lvlPrg=(scores.lvlScore/2)-1;
     init();
 }
 // setup the winning and losing/dying animations

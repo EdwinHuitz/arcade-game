@@ -2,7 +2,7 @@
 ## Description
 This is a game for which the goal is for the player to try and capture as many "Point Pellets" as they can before the enemies stop them.
 ## Wireframe
-![Wireframe Example](./wireframe.png)
+![Wireframe Example](images/wireframe.png)
 ## Psudo Code
 * make the const array to lay out the grid and then fill it with 1's and 0's to design the basic layout
 * make another set of arrays which copy the first. This will be used as a guide by the point balls to help randomize their starting positions
@@ -19,3 +19,4 @@ This is a game for which the goal is for the player to try and capture as many "
   
   ## Credits
   http://soundbible.com/ - Their great sound effects were used
+  https://icons8.com/ - Their incredible images were used
