@@ -1,4 +1,4 @@
-<div style="text-align:center">
+<span style="text-align:center">
 
 # Arcade Game
 
@@ -15,10 +15,20 @@ http://infinite-hunger.surge.sh/
 ## Wireframe
 ![Wireframe Example](images/wireframe.png)
 
+## Actual Game
+![Screenshot of the actual game](images/screenshot.jpeg)
 <hr/>
 
+## Technologies Used
+  
+HTML, CSS, and Javascript
+  
+<hr/>
+  
 ## Psudo Code
-<span style="text-align:left">
+
+</span>
+<span style="text-align:left;">
   
 * lay out a nested array to be used as the gameboard and then fill it with 1's and 0's to design the basic layout
   
@@ -34,9 +44,20 @@ http://infinite-hunger.surge.sh/
 * setup the start button and add animations for the characters and point balls
 * set up a reset function to reset everything once the player runs out of lives or wants to start over
   
-</span>
-  
+</span><hr/><span style="text-align:center">
+
 ## Credits
 http://soundbible.com/ - Their great sound effects were used  
 https://icons8.com/ - Their incredible images were used
-</div>
+<hr/>
+
+## Future Enhancements
+<span style="text-align:left;">
+
+* Adding additional enemies
+* Improving the enemies' movement logic so they can navigate harder maps
+* Adding a wide variety of additional maps
+* Further optimizing the game's incremental difficulty so that it's not too hard nor too easy
+* Adding cookies in order to allow the player to save their highscores
+
+</span>

@@ -22,4 +22,13 @@ const gridXY=
     UL:'',UR:'',DL:'',DR:'',//upper left and right, lower left and right
     LL:'',RR:'',UU:'',DD:''//two to the left, right, up, and down
 };
-export{scores,gridXY};
+const sounds=
+{
+    //audio
+    ding:new Audio('audio/Ding.wav'),
+    hit:new Audio('audio/Hit.wav'),
+    splat:new Audio('audio/Splat.wav'),
+    beep:new Audio('audio/Beep.wav'),
+    blip:new Audio('audio/Blip.wav')
+}
+export{scores,gridXY,sounds};

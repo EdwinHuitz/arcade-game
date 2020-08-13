@@ -1,7 +1,7 @@
 /*----- imports -----*/
 
 import {Lvl1,Lvl2,Lvl3,Lvl4} from './maps.js';
-import {scores,gridXY} from './variables.js';
+import {scores,gridXY,sounds} from './variables.js';
 
 /*----- cached element references -----*/
 
@@ -16,15 +16,9 @@ const reSetbtn=document.getElementById("reStart");
 //declaring the player
 const playr = '<div class="Player" id="p"></div>';
 //declaring the ghoul
-const ghoul = `
-<div class="Ghoul">
-</div>`;
+const ghoul = '<div class="Ghoul"></div>'; 
 //declaring point pellet
 const pP='<div class="pPoint"></div>';
-//audio
-const ding=new Audio('audio/Ding.wav');
-const hit=new Audio('audio/Hit.wav');
-const splat=new Audio('audio/Splat.wav');
 
 /*----- app's state (variables) -----*/
 
@@ -48,11 +42,14 @@ let nxtLvl=false;
 
 //button clicks
 document.getElementById("startgame").addEventListener('click',()=>{
-    init();
+    sounds.beep.play();
+    //delays the start so the sound has time to load
+    setTimeout(() => {init();}, 500); 
     //makes the ghoul move and detects damage
     setInterval(()=>{
         moveGhouls();
-        if((scores.lvlScore/10)>9){T=400;}
+        ((scores.lvlScore/10)>4)?T=500:
+        ((scores.lvlScore/10)>9)?T=400:"";
     },T);
     setInterval(() =>{(gridXY.Dify===0 && gridXY.Difx ===0)?hitPlayer():"";},200);
 });
@@ -245,7 +242,7 @@ function checkPP()
     scores.cScore+=5;
     //updates the player's score and plays a sound
     curScore.innerHTML=scores.cScore;
-    ding.play();
+    sounds.ding.play();
     //checks whether the player has completed the level
     if(scores.lvlPrg>0)
     {
@@ -253,6 +250,7 @@ function checkPP()
     }
     else
     {
+        sounds.blip.play();
         nxtLvl=true;
         //resets the player to the center of the map
         gridXY.pX=10;gridXY.pY=10;
@@ -261,6 +259,8 @@ function checkPP()
         scores.lvlPrg=(scores.lvlScore/2)-1;
         (pHealth<10)?pHealth+=1:"";
         init();
+        document.body.style.animationName="blinkGreen";
+        setTimeout(()=>{document.body.style.animationName="";},700);
     }
 }
 //adds the pellets to the board
@@ -289,9 +289,15 @@ function hitPlayer()
     //damages the player if they're not already dead
     (pHealth>-1)?pHealth-=1:"";
     //plays the proper sound effects for player damage and death
-    (pHealth>0)?hit.play():splat.play();
+    (pHealth>0)?sounds.hit.play():sounds.splat.play();
     //checks if the player died
-    if(pHealth<1){ScoreBoard();reStart();}
+    if(pHealth<1)
+    {
+        ScoreBoard();
+        reStart();
+        document.body.style.animationName="blinkRed";
+        setTimeout(()=>{document.body.style.animationName="";},700);
+    }
     //adds the health percentage text to the health bar
     curHealth.innerHTML=`<p>Health: ${pHealth*10}%</p>`;
     //expands or contracts the health bar

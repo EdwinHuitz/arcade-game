@@ -11,6 +11,15 @@ body
     background-color:#284D48;
     color:#E2E2E2;
     font-family: Tahoma, Verdana, Segoe, sans-serif;
+    animation-duration: 0.6s;
+}
+@keyframes blinkGreen
+{
+    50%{background-color:greenyellow;}
+}
+@keyframes blinkRed
+{
+    50%{background-color:darkred;}
 }
 #main
 {
