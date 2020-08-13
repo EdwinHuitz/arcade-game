@@ -52,7 +52,7 @@ document.getElementById("startgame").addEventListener('click',()=>{
     //makes the ghoul move and detects damage
     setInterval(()=>{
         moveGhouls();
-        if((scores.lvlScore/10)>9){T=380;}
+        if((scores.lvlScore/10)>9){T=400;}
     },T);
     setInterval(() =>{(gridXY.Dify===0 && gridXY.Difx ===0)?hitPlayer():"";},200);
 });
@@ -337,16 +337,16 @@ function moveGhouls()
         //if player y less than ghoul y and no wall above ghoul, move up. Else if while moving up you can get closer x wise, do it once
         if(gridXY.Dify<0 && gridXY.U!=1)
         {
-            setTimeout(() =>{moveIt(gridXY.gX,gridXY.gY,ghoul,1);}, 280);
+            setTimeout(() =>{moveIt(gridXY.gX,gridXY.gY,ghoul,1);}, T-200);
             setTimeout(() =>{updateG();
             //checks if a left or right turn is possible one space above or below the ghoul
-            (gridXY.Difx<0 && gridXY.L===1 || gridXY.Difx>0 && gridXY.R===1)?cornersY():"";}, 320);
+            (gridXY.Difx<0 && gridXY.L===1 || gridXY.Difx>0 && gridXY.R===1)?cornersY():"";}, T-150);
         }
         //go down
         else if(gridXY.Dify>0 && gridXY.D!=1)
         {
-            setTimeout(() =>{moveIt(gridXY.gX,gridXY.gY,ghoul,2);}, 280);
-            setTimeout(() =>{updateG();(gridXY.Difx<0 && gridXY.L===1 || gridXY.Difx>0 && gridXY.R===1)?cornersY():"";}, 320);
+            setTimeout(() =>{moveIt(gridXY.gX,gridXY.gY,ghoul,2);}, T-200);
+            setTimeout(() =>{updateG();(gridXY.Difx<0 && gridXY.L===1 || gridXY.Difx>0 && gridXY.R===1)?cornersY():"";}, T-150);
         }
         //check for alternate route if stuck
         else if(gridXY.Difx===0 && gridXY.Dify!=0)
@@ -359,13 +359,13 @@ function moveGhouls()
                 //checks two to the left/right and down one
                 if(gridXY.L!=1 && gridXY.LL!=1 && ThisLvl[gridXY.gY+1][gridXY.gX+2]!=1)
                 {
-                    setTimeout(() =>{moveIt(gridXY.gX,gridXY.gY,ghoul,3);}, 280);
-                    setTimeout(()=>{updateG();cornersX();},320);
+                    setTimeout(() =>{moveIt(gridXY.gX,gridXY.gY,ghoul,3);}, T-200);
+                    setTimeout(()=>{updateG();cornersX();},T-150);
                 }
                 else if(gridXY.R!=1 && gridXY.RR!=1 && ThisLvl[gridXY.gY+1][gridXY.gX-2]!=1)
                 {
-                    setTimeout(() =>{moveIt(gridXY.gX,gridXY.gY,ghoul,4);}, 280);
-                    setTimeout(()=>{updateG();cornersX();},320);
+                    setTimeout(() =>{moveIt(gridXY.gX,gridXY.gY,ghoul,4);}, T-200);
+                    setTimeout(()=>{updateG();cornersX();},T-150);
                 }
             }
             //ghoul below the player with wall above it
@@ -373,13 +373,13 @@ function moveGhouls()
             {
                 if(gridXY.L!=1 && gridXY.LL!=1 && ThisLvl[gridXY.gY-1][gridXY.gX-2]!=1)
                 {
-                    setTimeout(() =>{moveIt(gridXY.gX,gridXY.gY,ghoul,3);}, 280);
-                    setTimeout(()=>{updateG();cornersX();},320);
+                    setTimeout(() =>{moveIt(gridXY.gX,gridXY.gY,ghoul,3);}, T-200);
+                    setTimeout(()=>{updateG();cornersX();},T-150);
                 }
                 else if(gridXY.R!=1 && gridXY.RR!=1 && ThisLvl[gridXY.gY-1][gridXY.gX+2]!=1)
                 {
-                    setTimeout(() =>{moveIt(gridXY.gX,gridXY.gY,ghoul,4);}, 280);
-                    setTimeout(()=>{updateG();cornersX();},320);
+                    setTimeout(() =>{moveIt(gridXY.gX,gridXY.gY,ghoul,4);}, T-200);
+                    setTimeout(()=>{updateG();cornersX();},T-150);
                 }
             }
         }
@@ -392,14 +392,14 @@ function moveGhouls()
         //go left
         if(gridXY.Difx<0 && gridXY.L!=1)
         {
-            setTimeout(() =>{moveIt(gridXY.gX,gridXY.gY,ghoul,3);}, 280);
-            setTimeout(() =>{updateG();(gridXY.Difx<0 && gridXY.L===1 || gridXY.Difx>0 && gridXY.R===1)?cornersX():"";}, 320);
+            setTimeout(() =>{moveIt(gridXY.gX,gridXY.gY,ghoul,3);}, T-200);
+            setTimeout(() =>{updateG();(gridXY.Difx<0 && gridXY.L===1 || gridXY.Difx>0 && gridXY.R===1)?cornersX():"";}, T-150);
         }
         //go right
         else if(gridXY.Difx>0 && gridXY.R!=1)
         {
-            setTimeout(() =>{moveIt(gridXY.gX,gridXY.gY,ghoul,4);}, 280);
-            setTimeout(() =>{updateG();(gridXY.Difx<0 && gridXY.L===1 || gridXY.Difx>0 && gridXY.R===1)?cornersX():"";}, 320);
+            setTimeout(() =>{moveIt(gridXY.gX,gridXY.gY,ghoul,4);}, T-200);
+            setTimeout(() =>{updateG();(gridXY.Difx<0 && gridXY.L===1 || gridXY.Difx>0 && gridXY.R===1)?cornersX():"";}, T-150);
         }
         //check for alternate route if stuck
         else if(gridXY.Dify===0 && gridXY.Difx!=0)
@@ -412,14 +412,14 @@ function moveGhouls()
                 //checks two above to the left
                 if(gridXY.U!=1 && gridXY.UU!=1 && ThisLvl[gridXY.gY-2][gridXY.gX+1]!=1)
                 {
-                    setTimeout(() =>{moveIt(gridXY.gX,gridXY.gY,ghoul,1);}, 280);
-                    setTimeout(()=>{updateG();cornersY();},320);
+                    setTimeout(() =>{moveIt(gridXY.gX,gridXY.gY,ghoul,1);}, T-200);
+                    setTimeout(()=>{updateG();cornersY();},T-150);
                 }
                 //checks two below to the left
                 else if(gridXY.D!=1 && gridXY.DD!=1 && ThisLvl[gridXY.gY+2][gridXY.gX+1]!=1)
                 {
-                    setTimeout(() =>{moveIt(gridXY.gX,gridXY.gY,ghoul,2);}, 280);
-                    setTimeout(()=>{updateG();cornersY();},320);
+                    setTimeout(() =>{moveIt(gridXY.gX,gridXY.gY,ghoul,2);}, T-200);
+                    setTimeout(()=>{updateG();cornersY();},T-150);
                 }
             }
             //ghoul to the right of the player with wall to the left of the ghoul
@@ -427,13 +427,13 @@ function moveGhouls()
             {
                 if(gridXY.U!=1 && gridXY.UU!=1 && ThisLvl[gridXY.gY-2][gridXY.gX-1]!=1)
                 {
-                    setTimeout(() =>{moveIt(gridXY.gX,gridXY.gY,ghoul,1);}, 280);
-                    setTimeout(()=>{updateG();cornersY();},320);
+                    setTimeout(() =>{moveIt(gridXY.gX,gridXY.gY,ghoul,1);}, T-200);
+                    setTimeout(()=>{updateG();cornersY();},T-150);
                 }
                 else if(gridXY.D!=1 && gridXY.DD!=1 && ThisLvl[gridXY.gY+2][gridXY.gX-1]!=1)
                 {
-                    setTimeout(() =>{moveIt(gridXY.gX,gridXY.gY,ghoul,2);}, 280);
-                    setTimeout(()=>{updateG();cornersY();},320);
+                    setTimeout(() =>{moveIt(gridXY.gX,gridXY.gY,ghoul,2);}, T-200);
+                    setTimeout(()=>{updateG();cornersY();},T-150);
                 }
             }
         }
