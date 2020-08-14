@@ -256,6 +256,8 @@ function checkPP()
     }
     else
     {
+        clearInterval(moveG);
+        clearInterval(checkH);
         sounds.blip.play();
         nxtLvl=true;
         //resets the player to the center of the map
