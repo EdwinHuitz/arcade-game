@@ -8,6 +8,7 @@ import {scores,gridXY,sounds} from './variables.js';
 //declaring the gameboard and start button
 const gBoard=document.getElementById("board");
 const startBtn=document.getElementById("startgame");
+const btnBar=document.getElementById("btnBar");
 //declaring the current score, level, health, and highscore
 const curScore=document.getElementById("curScore");
 const curLevel=document.getElementById("curLevel");
@@ -70,11 +71,12 @@ function init()
     let gStart=Math.floor(Math.random() * Math.floor(8));
     //picks the map based on the number above
     ThisLvl=(gStart==0||gStart==2)?Lvl1:(gStart==1||gStart==3)?Lvl2:(gStart==4||gStart==6)?Lvl3:Lvl4;
-    //makes the current score, current level, and health bar visible
+    //makes the current score, current level, movement buttons, and health bar visible
     curLevel.style.visibility="visible";
     curScore.style.visibility="visible";
     curHealth.style.visibility="visible";
     reSetbtn.style.visibility="visible";
+    btnBar.style.visibility="visible";
     //calculates the current level
     curLevel.innerHTML=scores.lvlScore/10;
     curScore.innerHTML=scores.cScore;
@@ -83,8 +85,6 @@ function init()
     curHealth.innerHTML=`<p>Health: ${pHealth*10}%</p>`;
     //expands or contracts the player's health bar
     curHealth.style.width=`${pHealth*10}%`;
-    //makes navigation buttons visible
-    document.getElementById("btnBar").style.visibility="visible";
     //building lvl
     ThisLvl.forEach((a) => {
     do{
@@ -297,6 +297,8 @@ function hitPlayer()
     //checks if the player died
     if(pHealth<1)
     {
+        reSetbtn.style.visibility="hidden";
+        btnBar.style.visibility="hidden";
         ScoreBoard();
         clearInterval(moveG);
         clearInterval(checkH);
