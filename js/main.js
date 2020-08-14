@@ -71,6 +71,8 @@ function init()
     let gStart=Math.floor(Math.random() * Math.floor(8));
     //picks the map based on the number above
     ThisLvl=(gStart==0||gStart==2)?Lvl1:(gStart==1||gStart==3)?Lvl2:(gStart==4||gStart==6)?Lvl3:Lvl4;
+    //resets background color
+    document.body.style.backgroundColor="#284D48";
     //makes the current score, current level, movement buttons, and health bar visible
     curLevel.style.visibility="visible";
     curScore.style.visibility="visible";
@@ -290,6 +292,8 @@ function addPP()
 //determines the player's lives
 function hitPlayer()
 {
+    document.body.style.animationName="blinkRed";
+    setTimeout(()=>{document.body.style.animationName="";},200);
     //damages the player if they're not already dead
     (pHealth>-1)?pHealth-=1:"";
     //plays the proper sound effects for player damage and death
@@ -305,8 +309,7 @@ function hitPlayer()
         gBoard.innerHTML="";
         startBtn.innerText="Try Again?";
         startBtn.style.visibility="visible";
-        document.body.style.animationName="blinkRed";
-        setTimeout(()=>{document.body.style.animationName="";},700);
+        document.body.style.backgroundColor="darkred";
     }
     //adds the health percentage text to the health bar
     curHealth.innerHTML=`<p>Health: ${pHealth*10}%</p>`;
