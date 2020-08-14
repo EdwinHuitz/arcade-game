@@ -5,8 +5,9 @@ import {scores,gridXY,sounds} from './variables.js';
 
 /*----- cached element references -----*/
 
-//declaring the gameboard
-const gBoard = document.getElementById("board");
+//declaring the gameboard and start button
+const gBoard=document.getElementById("board");
+const startBtn=document.getElementById("startgame");
 //declaring the current score, level, health, and highscore
 const curScore=document.getElementById("curScore");
 const curLevel=document.getElementById("curLevel");
@@ -37,21 +38,18 @@ let Prio;
 let ThisLvl;
 //checks whether to move on to the next level
 let nxtLvl=false;
-
+//intervals for movement and damage
+let moveG;
+let checkH;
+//checks for start or restart button
+let reClicked=false;
 /*----- event listeners -----*/
 
 //button clicks
-document.getElementById("startgame").addEventListener('click',()=>{
+startBtn.addEventListener('click',()=>{
     sounds.beep.play();
     //delays the start so the sound has time to load
-    setTimeout(() => {init();}, 500); 
-    //makes the ghoul move and detects damage
-    setInterval(()=>{
-        moveGhouls();
-        ((scores.lvlScore/10)>4)?T=500:
-        ((scores.lvlScore/10)>9)?T=400:"";
-    },T);
-    setInterval(() =>{(gridXY.Dify===0 && gridXY.Difx ===0)?hitPlayer():"";},200);
+    setTimeout(() => {startBtn.style.visibility="hidden";if(reClicked===false){init();reClicked=true;}else{reStart();}}, 450); 
 });
 document.getElementById("reStart").addEventListener('click',reStart);
 //buttons for navigating the player
@@ -67,6 +65,7 @@ window.addEventListener('keydown',a=>movePlayer(a));
 function init()
 {
     gridXY.iY=0;
+    gridXY.gX=2;gridXY.gY=2;
     //random number for picking a map
     let gStart=Math.floor(Math.random() * Math.floor(8));
     //picks the map based on the number above
@@ -107,7 +106,12 @@ function init()
     gridXY.iX=0;
     gridXY.iY++;
     });
+    //adds the point pellets
     addPP();
+    //makes the ghoul move
+    moveG=setInterval(()=>{moveGhouls();((scores.lvlScore/10)>4)?T=500:((scores.lvlScore/10)>9)?T=400:"";},T);
+    //detects damage
+    checkH=setInterval(() =>{(gridXY.Dify===0 && gridXY.Difx ===0)?hitPlayer():"";},200);
 }
 
 //
@@ -294,7 +298,11 @@ function hitPlayer()
     if(pHealth<1)
     {
         ScoreBoard();
-        reStart();
+        clearInterval(moveG);
+        clearInterval(checkH);
+        gBoard.innerHTML="";
+        startBtn.innerText="Try Again?";
+        startBtn.style.visibility="visible";
         document.body.style.animationName="blinkRed";
         setTimeout(()=>{document.body.style.animationName="";},700);
     }
@@ -506,6 +514,8 @@ function ScoreBoard()
 //resets all variables and restarts the game
 function reStart()
 {
+    clearInterval(moveG);
+    clearInterval(checkH);
     pHealth=10;
     gridXY.gX=2;gridXY.gY=2;
     updateG();
