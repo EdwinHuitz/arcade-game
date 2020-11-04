@@ -12,6 +12,7 @@ const btnBar=document.getElementById("btnBar");
 //declaring the current score, level, health, and highscore
 const curScore=document.getElementById("curScore");
 const curLevel=document.getElementById("curLevel");
+const curProgress=document.getElementById("curProgress");
 const curHealth=document.getElementById("health");
 //declaring the restart button
 const reSetbtn=document.getElementById("reStart");
@@ -63,20 +64,25 @@ window.addEventListener('keydown',a=>movePlayer(a));
 
 /*----- functions -----*/
 //sets up the gameboard and initializes the game
+let cache = 0
 function init()
 {
     gridXY.iY=0;
     gridXY.gX=2;gridXY.gY=2;
-    //random number for picking a map
-    let gStart=Math.floor(Math.random() * Math.floor(8));
+    //random number for picking a map and cache to make sure it's not the same map as before
+    let gStart=Math.floor(Math.random() * Math.floor(4));
+    while(gStart==cache){gStart=Math.floor(Math.random() * Math.floor(4));}
+    cache=gStart;
+    console.log(gStart)
     //picks the map based on the number above
-    ThisLvl=(gStart==0||gStart==2)?Lvl1:(gStart==1||gStart==3)?Lvl2:(gStart==4||gStart==6)?Lvl3:Lvl4;
+    ThisLvl=gStart==0?Lvl1:gStart==1?Lvl2:gStart==2?Lvl3:Lvl4;
     //resets background color
     document.body.style.backgroundColor="#284D48";
     //makes the current score, current level, movement buttons, and health bar visible
     curLevel.style.visibility="visible";
     curScore.style.visibility="visible";
     curHealth.style.visibility="visible";
+    curProgress.style.visibility="visible";
     reSetbtn.style.visibility="visible";
     btnBar.style.visibility="visible";
     //calculates the current level
@@ -87,6 +93,9 @@ function init()
     curHealth.innerHTML=`<p>Health: ${pHealth*10}%</p>`;
     //expands or contracts the player's health bar
     curHealth.style.width=`${pHealth*10}%`;
+    //adds value to player's progress bar text
+    //expands or contracts the player's progress bar
+    curProgress.style.width=`0%`;
     //building lvl
     ThisLvl.forEach((a) => {
     do{
@@ -123,21 +132,56 @@ function init()
 //moves the player when keys are used
 function movePlayer(a)
 {
-    switch(a.key.toLowerCase())
+    if(gridXY.pX==20)
     {
-        case "w":moveIt(gridXY.pX,gridXY.pY,playr,1);
-        //checks whether the player's move is valid
-        if(ThisLvl[gridXY.pY-1][gridXY.pX]!=1 && gridXY.pY>0 && nxtLvl===false){gridXY.pY--;}else{nxtLvl=false}
-        break;
-        case "s":moveIt(gridXY.pX,gridXY.pY,playr,2);
-        if(ThisLvl[gridXY.pY+1][gridXY.pX]!=1 && gridXY.pY<20 && nxtLvl===false){gridXY.pY++;}else{nxtLvl=false}
-        break;
-        case "a":moveIt(gridXY.pX,gridXY.pY,playr,3);
-        if(ThisLvl[gridXY.pY][gridXY.pX-1]!=1 && gridXY.pX>0 && nxtLvl===false){gridXY.pX--;}else{nxtLvl=false}
-        break;
-        case "d":moveIt(gridXY.pX,gridXY.pY,playr,4);
-        if(ThisLvl[gridXY.pY][gridXY.pX+1]!=1 && gridXY.pX<20 && nxtLvl===false){gridXY.pX++;}else{nxtLvl=false}
-        break;
+        switch(a.key.toLowerCase())
+        {
+            case "w":moveIt(gridXY.pX,gridXY.pY,playr,1);
+            //checks whether the player's move is valid
+            if(ThisLvl[gridXY.pY-1][gridXY.pX]!=1 && gridXY.pY>0 && nxtLvl===false){gridXY.pY--;}else{nxtLvl=false}
+            break;
+            case "s":moveIt(gridXY.pX,gridXY.pY,playr,2);
+            if(ThisLvl[gridXY.pY+1][gridXY.pX]!=1 && gridXY.pY<20 && nxtLvl===false){gridXY.pY++;}else{nxtLvl=false}
+            break;
+            case "a":moveIt(gridXY.pX,gridXY.pY,playr,3);
+            if(ThisLvl[gridXY.pY][gridXY.pX-1]!=1 && gridXY.pX>0 && nxtLvl===false){gridXY.pX--;}else{nxtLvl=false}
+            break;
+        }
+    }
+    else if(gridXY.pX==0)
+    {
+        switch(a.key.toLowerCase())
+        {
+            case "w":moveIt(gridXY.pX,gridXY.pY,playr,1);
+            //checks whether the player's move is valid
+            if(ThisLvl[gridXY.pY-1][gridXY.pX]!=1 && gridXY.pY>0 && nxtLvl===false){gridXY.pY--;}else{nxtLvl=false}
+            break;
+            case "s":moveIt(gridXY.pX,gridXY.pY,playr,2);
+            if(ThisLvl[gridXY.pY+1][gridXY.pX]!=1 && gridXY.pY<20 && nxtLvl===false){gridXY.pY++;}else{nxtLvl=false}
+            break;
+            case "d":moveIt(gridXY.pX,gridXY.pY,playr,4);
+            if(ThisLvl[gridXY.pY][gridXY.pX+1]!=1 && gridXY.pX<20 && nxtLvl===false){gridXY.pX++;}else{nxtLvl=false}
+            break;
+        }
+    }
+    else
+    {
+        switch(a.key.toLowerCase())
+        {
+            case "w":moveIt(gridXY.pX,gridXY.pY,playr,1);
+            //checks whether the player's move is valid
+            if(ThisLvl[gridXY.pY-1][gridXY.pX]!=1 && gridXY.pY>0 && nxtLvl===false){gridXY.pY--;}else{nxtLvl=false}
+            break;
+            case "s":moveIt(gridXY.pX,gridXY.pY,playr,2);
+            if(ThisLvl[gridXY.pY+1][gridXY.pX]!=1 && gridXY.pY<20 && nxtLvl===false){gridXY.pY++;}else{nxtLvl=false}
+            break;
+            case "a":moveIt(gridXY.pX,gridXY.pY,playr,3);
+            if(ThisLvl[gridXY.pY][gridXY.pX-1]!=1 && gridXY.pX>0 && nxtLvl===false){gridXY.pX--;}else{nxtLvl=false}
+            break;
+            case "d":moveIt(gridXY.pX,gridXY.pY,playr,4);
+            if(ThisLvl[gridXY.pY][gridXY.pX+1]!=1 && gridXY.pX<20 && nxtLvl===false){gridXY.pX++;}else{nxtLvl=false}
+            break;
+        }
     }
 }
 function moveIt(x,y,i,d)
@@ -240,7 +284,8 @@ function moveIt(x,y,i,d)
 //
 //Score System
 //
-
+document.getElementById("cheating").addEventListener('click',checkPP)
+let prg=0
 //checks if the player has completed the level
 function checkPP()
 {
@@ -250,12 +295,15 @@ function checkPP()
     curScore.innerHTML=scores.cScore;
     sounds.ding.play();
     //checks whether the player has completed the level
-    if(scores.lvlPrg>0)
+    if(prg<scores.lvlPrg-1)
     {
-        scores.lvlPrg--;
+        prg++;
+        curProgress.innerHTML=`<p>Progress: ${Math.round((prg)/(scores.lvlPrg)*100)}% ${scores.lvlPrg}</p>`;
+        curProgress.style.width=`${Math.round((prg)/(scores.lvlPrg)*100)}%`;
     }
     else
     {
+        prg=0;
         clearInterval(moveG);
         clearInterval(checkH);
         sounds.blip.play();
@@ -264,11 +312,18 @@ function checkPP()
         gridXY.pX=10;gridXY.pY=10;
         //increases the number of pellets and resets the level progression
         scores.lvlScore+=10;
-        scores.lvlPrg=(scores.lvlScore/2)-1;
+        if(scores.lvlPrg<141)
+        {
+            scores.lvlPrg=(scores.lvlScore/2)-1;
+        }
+        else{
+            scores.lvlPrg=(141)
+        }
         (pHealth<10)?pHealth+=1:"";
         init();
         document.body.style.animationName="blinkGreen";
         setTimeout(()=>{document.body.style.animationName="";},700);
+        curProgress.innerHTML=`<p>Progress: ${prg}%</p>`;
     }
 }
 //adds the pellets to the board
@@ -288,7 +343,7 @@ function addPP()
             document.getElementById(`c${a}r${b}`).innerHTML=pP;
             iP++;
         }
-    }while(iP<scores.lvlScore);
+    }while(iP<scores.lvlPrg*2);
     curLevel.innerHTML=scores.lvlScore/10;
 }
 //determines the player's lives
