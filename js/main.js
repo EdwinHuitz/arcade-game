@@ -73,7 +73,6 @@ function init()
     let gStart=Math.floor(Math.random() * Math.floor(4));
     while(gStart==cache){gStart=Math.floor(Math.random() * Math.floor(4));}
     cache=gStart;
-    console.log(gStart)
     //picks the map based on the number above
     ThisLvl=gStart==0?Lvl1:gStart==1?Lvl2:gStart==2?Lvl3:Lvl4;
     //resets background color
@@ -205,12 +204,26 @@ function moveIt(x,y,i,d)
         //left
         case 3:
         P1 = document.getElementById(`c${y}r${x}`);
-        P2 = document.getElementById(`c${y}r${x-1}`);
+        if(x>0)
+        {
+            P2 = document.getElementById(`c${y}r${x-1}`);
+        }
+        else
+        {
+            P2 = document.getElementById(`c${y}r${0}`);
+        }
         break;
         //right
         case 4:
         P1 = document.getElementById(`c${y}r${x}`);
-        P2 = document.getElementById(`c${y}r${x+1}`);
+        if(x<20)
+        {
+            P2 = document.getElementById(`c${y}r${x+1}`);
+        }
+        else
+        {
+            P2 = document.getElementById(`c${y}r${20}`);    
+        }
         break;
     }
     //checks for pellets
@@ -284,7 +297,9 @@ function moveIt(x,y,i,d)
 //
 //Score System
 //
-document.getElementById("cheating").addEventListener('click',checkPP)
+
+//debugging button
+//document.getElementById("cheating").addEventListener('click',checkPP)
 let prg=0
 //checks if the player has completed the level
 function checkPP()
@@ -389,8 +404,20 @@ function updateG()
     gridXY.UR=ThisLvl[gridXY.gY-1][gridXY.gX+1];//upper right
     gridXY.DL=ThisLvl[gridXY.gY+1][gridXY.gX-1];//lower left
     gridXY.DR=ThisLvl[gridXY.gY+1][gridXY.gX+1];//lower right
-    gridXY.UU=ThisLvl[gridXY.gY-2][gridXY.gX];//two above
-    gridXY.DD=ThisLvl[gridXY.gY+2][gridXY.gX];//two below
+    if(isNaN(gridXY.gY-2))
+    {
+        gridXY.UU=ThisLvl[gridXY.gY-2][gridXY.gX];//two above
+    }
+    else{
+        gridXY.UU=ThisLvl[0][gridXY.gX]
+    }
+    if(isNaN(gridXY.gY+2))
+    {
+        gridXY.DD=ThisLvl[gridXY.gY+2][gridXY.gX];//two below
+    }
+    else{
+        gridXY.UU=ThisLvl[20][gridXY.gX]
+    }
     gridXY.LL=ThisLvl[gridXY.gY][gridXY.gX-2];//two to the left
     gridXY.RR=ThisLvl[gridXY.gY][gridXY.gX+2];//two to the right
     //find difference in y
