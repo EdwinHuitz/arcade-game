@@ -183,9 +183,10 @@ tr:last-of-type
     display:grid;
     grid-area:rightD;
     grid-template-columns: auto;
-    grid-template-rows: auto auto auto auto;
+    grid-template-rows: 3.3vh auto auto auto auto auto;
     grid-template-areas:
     "lives lives lives"
+    "curProgress curProgress curProgress"
     ". title1 ."
     ". des ."
     ". title2 ."
@@ -358,6 +359,24 @@ button
     border-radius: 7% 7% 0% 0%;
 }
 .health>p
+{
+    color:white;
+    margin:0;
+    padding:0;
+    top:0px;
+}
+.progress
+{
+    visibility: hidden;
+    display:grid;
+    grid-area: curProgress;
+    background-color:#1daf00;
+    width:100%;
+    height:3vh;
+    text-align:center;
+    border-radius: 7% 7% 0% 0%;
+}
+.progress>p
 {
     color:white;
     margin:0;
