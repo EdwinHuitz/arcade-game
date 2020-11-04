@@ -204,26 +204,12 @@ function moveIt(x,y,i,d)
         //left
         case 3:
         P1 = document.getElementById(`c${y}r${x}`);
-        if(x>0)
-        {
-            P2 = document.getElementById(`c${y}r${x-1}`);
-        }
-        else
-        {
-            P2 = document.getElementById(`c${y}r${0}`);
-        }
+        P2 = document.getElementById(`c${y}r${x-1}`);
         break;
         //right
         case 4:
         P1 = document.getElementById(`c${y}r${x}`);
-        if(x<20)
-        {
-            P2 = document.getElementById(`c${y}r${x+1}`);
-        }
-        else
-        {
-            P2 = document.getElementById(`c${y}r${20}`);    
-        }
+        P2 = document.getElementById(`c${y}r${x+1}`);
         break;
     }
     //checks for pellets
@@ -247,7 +233,7 @@ function moveIt(x,y,i,d)
         //moves the player to next block
         P2.innerHTML=i;
     }
-    if(i == ghoul && P2.className=="Path")
+    if(i == ghoul && P1 != null && P2 != null && P2.className=="Path")
     {
         switch(d)
         {

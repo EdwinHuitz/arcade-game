@@ -1,6 +1,6 @@
 <span style="text-align:center">
 
-# Arcade Game
+# Infinite Hunger
 
 ## Description
 This is a game for which the goal is for the player to try and capture as many "Point Pellets" as they can before the enemies stop them.
